@@ -224,7 +224,7 @@ export function extractCanonicalOpeningLine(fullText: string | null): string | n
   // 4. Split by poetic delimiters (danda ॥ or । or newline)
   // If text lacks dandas, also split by dot (.) or punctuation
   const hasDanda = /[॥।]/u.test(text);
-  const delimiter = hasDanda ? /[\n॥।]/u : /[\n॥।\.!\?]/u;
+  const delimiter = hasDanda ? /[\n॥।|]/u : /[\n॥।|\.!\?]/u;
   const segments = text.split(delimiter).map((s) => s.trim()).filter(Boolean);
 
   for (const seg of segments) {
@@ -691,7 +691,7 @@ export async function reviewAndFixCatalog(
             const updateData: Record<string, unknown> = {};
             if (plan.newTitleMarathi) updateData.titleMarathi = plan.newTitleMarathi;
             if (plan.newTitleTranslit) updateData.titleTranslit = plan.newTitleTranslit;
-            if (plan.newFullText) updateData.fullText = plan.newFullText;
+            if (plan.newFullText !== undefined) updateData.fullText = plan.newFullText || "—";
             if (plan.newMeaning) updateData.meaning = plan.newMeaning;
             if (plan.newAlternateTitles) updateData.alternateTitles = plan.newAlternateTitles;
             if (plan.newSaintId) updateData.saintId = plan.newSaintId;

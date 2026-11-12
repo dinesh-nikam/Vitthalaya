@@ -23,8 +23,8 @@ interface Vitthalaya3DSanctuaryProps {
 }
 
 const GENRE_TABS = [
-  { id: 'all', label: 'सर्व रचना', count: 21 },
-  { id: 'abhang', label: 'अभंग', count: 4 },
+  { id: 'all', label: 'सर्व रचना', count: 22 },
+  { id: 'abhang', label: 'अभंग', count: 5 },
   { id: 'gaulani', label: 'गवळण', count: 3 },
   { id: 'bharud', label: 'भारुड', count: 3 },
   { id: 'deviche_gane', label: 'देवीचे गाणे व आरती', count: 2 },
