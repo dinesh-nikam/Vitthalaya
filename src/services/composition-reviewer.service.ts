@@ -4,10 +4,13 @@
  * Automatically inspects compositions and daily features to detect and resolve:
  * 1. STORY_IN_ABHANG: Prose explanations/stories stored or presented as abhang verses.
  * 2. EMBEDDED_MEANING: Full text containing inline 'अर्थ:' or 'भावार्थ:' explanations.
- * 3. GENERIC_SCRAPER_TITLE: Generic scraper titles (e.g. 'संत एकनाथ गाथा अभंग क्रमांक ८२',
- *    'अभंग क्र. २७') instead of canonical first-line titles (ध्रुवपद).
- * 4. MISALIGNED_REFERENCE: Discrepancies between title/mudrika and saint attribution.
- * 5. DAILY_FEATURE_MISCONFIGURED: DailyFeature ABHANG slot holding meaning rather than verse.
+ * 3. GENERIC_SCRAPER_TITLE: Generic scraper titles (e.g. 'तुकाराम अभंग २५७५',
+ *    'संत एकनाथ गाथा अभंग क्रमांक ८२', 'अभंग क्र. २७') instead of canonical
+ *    first-line titles (ध्रुवपद).
+ * 4. MISALIGNED_REFERENCE: Discrepancies between internal Mudrika and saint attribution.
+ * 5. CRAWLER_JUNK_IN_VERSE: Scraped advertisements (e.g. 'कृषी क्रांती'), URLs, or
+ *    Wikisource boilerplate templates in verse text.
+ * 6. DAILY_FEATURE_MISCONFIGURED: DailyFeature ABHANG slot holding meaning rather than verse.
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -17,6 +20,7 @@ export type ReviewIssueType =
   | 'EMBEDDED_MEANING'
   | 'GENERIC_SCRAPER_TITLE'
   | 'MISALIGNED_REFERENCE'
+  | 'CRAWLER_JUNK_IN_VERSE'
   | 'DAILY_FEATURE_MISCONFIGURED';
 
 export interface ReviewIssue {
@@ -38,6 +42,7 @@ export interface CompositionCandidate {
   source?: string | null;
   saintId?: string | null;
   saintNameMarathi?: string | null;
+  saintSlug?: string | null;
   alternateTitles?: unknown;
 }
 
@@ -71,9 +76,9 @@ export interface DailyFeatureCandidate {
 
 const DEVANAGARI_CHAR = /[\u0900-\u097F]/;
 
-/** Pattern identifying generic scraper number titles */
+/** Pattern identifying generic scraper number titles (broad coverage) */
 export const GENERIC_TITLE_PATTERN =
-  /^(?:(?:संत\s+[\u0900-\u097F]+\s+)?(?:गाथा\s+)?(?:अभंग|ओवी|पद|श्लोक|कडवे)\s*(?:क्र\.|क्रमांक|\s+)\s*[०-९0-9]+(?:(?:ते|–|-)[०-९0-9]+)?|अभंग\s+क्र\.\s*[०-९0-9]+|गाथा\s+अभंग\s+[०-९0-9]+)/iu;
+  /^(?:(?:(?:संत|श्री)\s+)?[\u0900-\u097F]+\s+)?(?:गाथा\s+)?(?:अभंग|ओवी|पद|श्लोक|कडवे)\s*(?:क्र\.|क्रमांक|\s+)\s*[०-९0-9]+(?:(?:ते|–|-)[०-९0-9]+)?/iu;
 
 /** Pattern for embedded meaning markers inside full text */
 export const EMBEDDED_MEANING_PATTERN =
@@ -84,35 +89,40 @@ const STORY_PROSE_MARKERS = [
   /मोठ्या डाम डौलाने/u,
   /म्हणून तिच्या मि[ऱ्या|या] ओढीत/u,
   /म्हणाली\s+सासूबाई/u,
-  /रडू लागले/u,
-  /विचारू लागले/u,
-  /सांगू लागले/u,
   /अभिप्राय खरोखर कळत नाही/u,
   /लज्जायमान होऊन/u,
-  /कथा अशी आहे/u,
+  /कथा\s*:\s*[\u0900-\u097F]/u,
+  /कथासार\s*:\s*[\u0900-\u097F]/u,
+  /तात्पर्य\s*:\s*[\u0900-\u097F]/u,
   /गोष्ट अशी घडली/u,
-  /तात्पर्य असा की/u,
+  /महाराष्ट्र राज्यातील .*? जिल्ह्यात/u,
+  /भारताच्या महाराष्ट्र राज्याच्या .*? तालुका/u,
+  /स्थान\s*:\s*[\u0900-\u097F\s\w]+(?:जिल्हा|तालुका|रोड|मार्ग|विशेष:)/u,
+  /सत्पुरूष\s*:\s*श्री/u,
+  /Add languages विषय जोडा/u,
+  /प्रताधिकार मुक्त साहित्य/u,
 ];
 
-/** Standard mudrika (saint signature) mappings in Varkari literature */
-export const MUDRchannel_SIGNATURES: Array<{
+/** Standard mudrika (saint signature) mappings with root identifiers */
+export const MUDRIKA_SIGNATURES: Array<{
   pattern: RegExp;
   saintSlug: string;
   saintNameMarathi: string;
+  saintRoot: string;
 }> = [
-  { pattern: /एका\s+जनार्दनीं?/u, saintSlug: 'eknath-maharaj', saintNameMarathi: 'एकनाथ महाराज' },
-  { pattern: /तुका\s+म्हणे|तुकाराम\s+म्हणे/u, saintSlug: 'sant-tukaram', saintNameMarathi: 'संत तुकाराम' },
-  { pattern: /ज्ञानदेव\s+म्हणे|बापरखुमादेविवरू?|बापरखुमादेवीवर/u, saintSlug: 'sant-dnyaneshwar', saintNameMarathi: 'ज्ञानेश्वर महाराज' },
-  { pattern: /नामा\s+म्हणे|विष्णुदास\s+नामा/u, saintSlug: 'sant-namdev', saintNameMarathi: 'संत नामदेव' },
-  { pattern: /चोखा\s+म्हणे/u, saintSlug: 'sant-chokhamela', saintNameMarathi: 'संत चोखामेळा' },
-  { pattern: /दासी\s+जनी|जनी\s+म्हणे/u, saintSlug: 'sant-janabai', saintNameMarathi: 'संत जनाबाई' },
-  { pattern: /गोरा\s+म्हणे|गोरा\s+कुंभार/u, saintSlug: 'sant-gora-kumbhar', saintNameMarathi: 'संत गोरा कुंभार' },
-  { pattern: /सांव?ता\s+म्हणे/u, saintSlug: 'sant-savata-mali', saintNameMarathi: 'संत सावता माळी' },
-  { pattern: /सेना\s+म्हणे/u, saintSlug: 'sant-sena-maharaj', saintNameMarathi: 'संत सेना महाराज' },
-  { pattern: /निवृत्ती\s+म्हणे/u, saintSlug: 'sant-nivruttinath', saintNameMarathi: 'संत निवृत्तीनाथ' },
-  { pattern: /सोपान\s+म्हणे/u, saintSlug: 'sant-sopandev', saintNameMarathi: 'संत सोपानदेव' },
-  { pattern: /मुक्ता\s+म्हणे/u, saintSlug: 'sant-muktabai', saintNameMarathi: 'संत मुक्ताबाई' },
-  { pattern: /बहिणा\s+म्हणे/u, saintSlug: 'sant-bahinabai', saintNameMarathi: 'संत बहिणाबाई' },
+  { pattern: /एका\s+जनार्दनीं?/u, saintSlug: 'eknath-maharaj', saintNameMarathi: 'एकनाथ महाराज', saintRoot: 'एकनाथ' },
+  { pattern: /तुका\s+म्हणे|तुकाराम\s+म्हणे/u, saintSlug: 'tukaram-maharaj', saintNameMarathi: 'तुकाराम महाराज', saintRoot: 'तुकाराम' },
+  { pattern: /ज्ञानदेव\s+म्हणे|बापरखुमादेविवरू?|बापरखुमादेवीवर/u, saintSlug: 'dnyaneshwar-maharaj', saintNameMarathi: 'ज्ञानेश्वर महाराज', saintRoot: 'ज्ञानेश्वर' },
+  { pattern: /नामा\s+म्हणे|विष्णुदास\s+नामा/u, saintSlug: 'namdev-maharaj', saintNameMarathi: 'नामदेव महाराज', saintRoot: 'नामदेव' },
+  { pattern: /चोखा\s+म्हणे/u, saintSlug: 'chokhamela', saintNameMarathi: 'संत चोखामेळा', saintRoot: 'चोखा' },
+  { pattern: /दासी\s+जनी|जनी\s+म्हणे|जनी\s+ह्मणे/u, saintSlug: 'janabai', saintNameMarathi: 'संत जनाबाई', saintRoot: 'जनाबाई' },
+  { pattern: /गोरा\s+म्हणे|गोरा\s+कुंभार/u, saintSlug: 'gora-kumbhar', saintNameMarathi: 'संत गोरा कुंभार', saintRoot: 'गोरा' },
+  { pattern: /सांव?ता\s+म्हणे/u, saintSlug: 'savata-mali', saintNameMarathi: 'संत सावता माळी', saintRoot: 'सावता' },
+  { pattern: /सेना\s+म्हणे/u, saintSlug: 'sena-nhavi', saintNameMarathi: 'संत सेना न्हावी', saintRoot: 'सेना' },
+  { pattern: /निवृत्ती\s+म्हणे/u, saintSlug: 'nivruttinath', saintNameMarathi: 'निवृत्तिनाथ महाराज', saintRoot: 'निवृत्ति' },
+  { pattern: /सोपान\s+म्हणे/u, saintSlug: 'sopandev', saintNameMarathi: 'सोपानदेव', saintRoot: 'सोपान' },
+  { pattern: /मुक्ता\s+म्हणे/u, saintSlug: 'muktabai', saintNameMarathi: 'संत मुक्ताबाई', saintRoot: 'मुक्ता' },
+  { pattern: /बहिणा\s+म्हणे/u, saintSlug: 'bahinabai', saintNameMarathi: 'संत बहिणाबाई', saintRoot: 'बहिणा' },
 ];
 
 // ─── Transliteration Utility (Devanagari to Latin) ───────────────────────────
@@ -173,7 +183,25 @@ export function transliterateDevanagariToLatin(devText: string): string {
   return result || 'Abhang';
 }
 
-// ─── Core Auditor Functions ──────────────────────────────────────────────────
+// ─── Text Cleaning Utilities ─────────────────────────────────────────────────
+
+/**
+ * Strips scraped blog advertisements (Krushi Kranti ads), crawler noise,
+ * Wikisource template headers, and repetition artifacts from fullText.
+ */
+export function stripCrawlerJunk(text: string): { cleaned: string; changed: boolean } {
+  let cleaned = text
+    .replace(/(?:शेतमालाची\s+मोफत\s+जाहिरात\s+करण्या\s*साठी\s+)?कृषी\s+क्रांती(?:\s+ला\s+अवश्य\s+भेट\s+द्या)?/giu, '')
+    .replace(/(?:हे|हेही|हेसुद्धा)\s*(?:पण|सुद्धा)?\s*वाचा[:\s]*संत\s+[\u0900-\u097F]+चे\s+सर्व\s+अभंग\s*/giu, '')
+    .replace(/(?:हे|हेही|हेसुद्धा)\s*(?:पण|सुद्धा)?\s*वाचा[:\s]*[^\n।॥|]{2,50}/giu, '')
+    .replace(/"\s*https?:\/\/[^\s"]+\s*"\s*पासून\s*हुडकले/giu, '')
+    .replace(/\{\{शीर्ष\s*\|[^\}]+\}\}/gu, '')
+    .replace(/\s*ref:\s*[a-zA-Z0-9_\-]+(\s+[\u0900-\u097F\s]+)?$/u, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  return { cleaned, changed: cleaned !== text.trim() };
+}
 
 /**
  * Extracts the canonical opening line (ध्रुवपद) from composition fullText.
@@ -188,10 +216,16 @@ export function extractCanonicalOpeningLine(fullText: string | null): string | n
     .trim();
 
   // 2. Remove chapter / subheader titles e.g. "कौसल्येचे डोहाळे :"
-  text = text.replace(/^[\u0900-\u097F\s]+:\s*/u, '').trim();
+  text = text.replace(/^[^\n:]{2,50}:\s*/u, '').trim();
 
-  // 3. Split by poetic delimiters (danda ॥ or । or newline)
-  const segments = text.split(/[\n॥।]/).map((s) => s.trim()).filter(Boolean);
+  // 3. Remove wikisource template tags
+  text = text.replace(/\{\{[^}]+\}\}/gu, '').trim();
+
+  // 4. Split by poetic delimiters (danda ॥ or । or newline)
+  // If text lacks dandas, also split by dot (.) or punctuation
+  const hasDanda = /[॥।]/u.test(text);
+  const delimiter = hasDanda ? /[\n॥।]/u : /[\n॥।\.!\?]/u;
+  const segments = text.split(delimiter).map((s) => s.trim()).filter(Boolean);
 
   for (const seg of segments) {
     // Strip leading / trailing verse numbers and symbols e.g. "१. ", "॥ १ ॥", "(१)"
@@ -206,7 +240,10 @@ export function extractCanonicalOpeningLine(fullText: string | null): string | n
       cleaned.length <= 80 &&
       DEVANAGARI_CHAR.test(cleaned) &&
       !cleaned.startsWith('अर्थ') &&
-      !cleaned.startsWith('भावार्थ')
+      !cleaned.startsWith('भावार्थ') &&
+      !cleaned.includes('http') &&
+      !cleaned.includes('wikisource') &&
+      !cleaned.includes('गाथा')
     ) {
       return cleaned;
     }
@@ -222,19 +259,25 @@ export function isProseStory(text: string): boolean {
   if (!text || text.trim().length === 0) return false;
   const trimmed = text.trim();
 
+  // If text contains genuine poetic markers, it is sacred verse unless it matches explicit narrative prose
+  const hasPoeticStructure = /[।॥|]|(?:धृ|ध्रु|[०-९\d]\s*[।॥|\.])/.test(trimmed);
+  if (hasPoeticStructure) {
+    for (const marker of STORY_PROSE_MARKERS) {
+      if (marker.test(trimmed)) return true;
+    }
+    return false;
+  }
+
   // Check known narrative markers
   for (const marker of STORY_PROSE_MARKERS) {
     if (marker.test(trimmed)) return true;
   }
 
-  // Check structural markers: lack of dandas combined with long average sentence length
-  const hasDanda = /[।॥]/.test(trimmed);
+  // Check structural markers: lack of any poetic delimiters combined with long sentences
   const sentences = trimmed.split(/[\.\n]/).filter((s) => s.trim().length > 0);
   const avgLen = trimmed.length / Math.max(sentences.length, 1);
 
-  // Typical Marathi abhang stanzas have dandas or short rhyming lines (< 50 chars).
-  // Prose stories have long running sentences without dandas.
-  if (!hasDanda && avgLen > 90 && sentences.length <= 4) {
+  if (avgLen > 90 && sentences.length <= 4) {
     return true;
   }
 
@@ -275,12 +318,14 @@ export function extractEmbeddedMeaning(fullText: string): {
 export function detectMudrikaSaint(text: string): {
   saintSlug: string;
   saintNameMarathi: string;
+  saintRoot: string;
 } | null {
-  for (const sig of MUDRchannel_SIGNATURES) {
+  for (const sig of MUDRIKA_SIGNATURES) {
     if (sig.pattern.test(text)) {
       return {
         saintSlug: sig.saintSlug,
         saintNameMarathi: sig.saintNameMarathi,
+        saintRoot: sig.saintRoot,
       };
     }
   }
@@ -294,7 +339,7 @@ export function analyzeComposition(comp: CompositionCandidate): ReviewIssue[] {
   const issues: ReviewIssue[] = [];
   const fullText = comp.fullText?.trim() || '';
   const title = comp.titleMarathi?.trim() || '';
-  const _meaning = comp.meaning?.trim() || '';
+  const meaning = comp.meaning?.trim() || '';
 
   // 1. Check for Embedded Meaning in FullText
   const embedded = extractEmbeddedMeaning(fullText);
@@ -309,8 +354,21 @@ export function analyzeComposition(comp: CompositionCandidate): ReviewIssue[] {
     });
   }
 
-  // 2. Check for Story in Verse
-  if (isProseStory(fullText) || (_meaning && fullText === _meaning)) {
+  // 2. Check for Crawler Junk in Verse
+  const junkCheck = stripCrawlerJunk(embedded.verse || fullText);
+  if (junkCheck.changed) {
+    issues.push({
+      type: 'CRAWLER_JUNK_IN_VERSE',
+      severity: 'CRITICAL',
+      description: 'Composition fullText contains scraped blog advertisement or crawler boilerplate',
+      currentValue: fullText.slice(-100),
+      proposedFix: junkCheck.cleaned.slice(0, 60) + '...',
+      metadata: { cleanedText: junkCheck.cleaned },
+    });
+  }
+
+  // 3. Check for Story in Verse
+  if (isProseStory(fullText) || (meaning && fullText === meaning)) {
     issues.push({
       type: 'STORY_IN_ABHANG',
       severity: 'CRITICAL',
@@ -319,9 +377,10 @@ export function analyzeComposition(comp: CompositionCandidate): ReviewIssue[] {
     });
   }
 
-  // 3. Check for Generic Scraper Title
+  // 4. Check for Generic Scraper Title
   if (GENERIC_TITLE_PATTERN.test(title)) {
-    const canonical = extractCanonicalOpeningLine(embedded.verse || fullText);
+    const textForTitle = junkCheck.cleaned || embedded.verse || fullText;
+    const canonical = extractCanonicalOpeningLine(textForTitle);
     issues.push({
       type: 'GENERIC_SCRAPER_TITLE',
       severity: 'WARNING',
@@ -332,9 +391,9 @@ export function analyzeComposition(comp: CompositionCandidate): ReviewIssue[] {
     });
   }
 
-  // 4. Check for Mudrika vs Saint Alignment
+  // 5. Check for Mudrika vs Saint Alignment
   const mudrika = detectMudrikaSaint(fullText);
-  if (mudrika && comp.saintNameMarathi && !comp.saintNameMarathi.includes(mudrika.saintNameMarathi)) {
+  if (mudrika && comp.saintNameMarathi && !comp.saintNameMarathi.includes(mudrika.saintRoot)) {
     issues.push({
       type: 'MISALIGNED_REFERENCE',
       severity: 'WARNING',
@@ -354,6 +413,7 @@ export function analyzeComposition(comp: CompositionCandidate): ReviewIssue[] {
 export function generateCompositionFixPlan(
   comp: CompositionCandidate,
   issues: ReviewIssue[],
+  saintSlugToIdMap?: Map<string, string>,
 ): FixPlan | null {
   if (issues.length === 0) return null;
 
@@ -368,6 +428,13 @@ export function generateCompositionFixPlan(
       ? JSON.parse(comp.alternateTitles || '[]')
       : [];
 
+  // Handle Crawler Junk First
+  const junkIssue = issues.find((i) => i.type === 'CRAWLER_JUNK_IN_VERSE');
+  if (junkIssue?.metadata && typeof junkIssue.metadata.cleanedText === 'string') {
+    plan.newFullText = junkIssue.metadata.cleanedText as string;
+    plan.issuesResolved.push('CRAWLER_JUNK_IN_VERSE');
+  }
+
   // Handle Embedded Meaning
   const meaningIssue = issues.find((i) => i.type === 'EMBEDDED_MEANING');
   if (meaningIssue?.metadata) {
@@ -375,7 +442,9 @@ export function generateCompositionFixPlan(
       cleanVerse: string;
       cleanMeaning: string;
     };
-    plan.newFullText = cleanVerse;
+    // Apply junk cleaning on cleanVerse if not already handled
+    const cleaned = plan.newFullText || stripCrawlerJunk(cleanVerse).cleaned;
+    plan.newFullText = cleaned;
     plan.newMeaning = comp.meaning ? `${comp.meaning}\n\n${cleanMeaning}` : cleanMeaning;
     plan.issuesResolved.push('EMBEDDED_MEANING');
   }
@@ -394,6 +463,17 @@ export function generateCompositionFixPlan(
     plan.newAlternateTitles = Array.from(alternates);
 
     plan.issuesResolved.push('GENERIC_SCRAPER_TITLE');
+  }
+
+  // Handle Saint Re-alignment from Mudrika
+  const saintIssue = issues.find((i) => i.type === 'MISALIGNED_REFERENCE');
+  if (saintIssue?.metadata?.mudrikaSaint && saintSlugToIdMap) {
+    const mudrika = saintIssue.metadata.mudrikaSaint as { saintSlug: string };
+    const targetSaintId = saintSlugToIdMap.get(mudrika.saintSlug);
+    if (targetSaintId) {
+      plan.newSaintId = targetSaintId;
+      plan.issuesResolved.push('MISALIGNED_REFERENCE');
+    }
   }
 
   return plan.issuesResolved.length > 0 ? plan : null;
@@ -533,6 +613,12 @@ export async function reviewAndFixCatalog(
     whereClause.id = compositionId;
   }
 
+  // Pre-load saint lookup map for mudrika reference resolution
+  const allSaints = await prisma.saint.findMany({
+    select: { id: true, slug: true },
+  });
+  const saintSlugToIdMap = new Map(allSaints.map((s) => [s.slug, s.id]));
+
   const total = await prisma.composition.count({ where: whereClause });
   const takeTotal = limit ? Math.min(limit, total) : total;
 
@@ -545,6 +631,7 @@ export async function reviewAndFixCatalog(
     EMBEDDED_MEANING: 0,
     GENERIC_SCRAPER_TITLE: 0,
     MISALIGNED_REFERENCE: 0,
+    CRAWLER_JUNK_IN_VERSE: 0,
     DAILY_FEATURE_MISCONFIGURED: 0,
   };
 
@@ -566,7 +653,7 @@ export async function reviewAndFixCatalog(
         source: true,
         saintId: true,
         alternateTitles: true,
-        saint: { select: { id: true, nameMarathi: true } },
+        saint: { select: { id: true, slug: true, nameMarathi: true } },
       },
       orderBy: { createdAt: 'asc' },
     });
@@ -583,6 +670,7 @@ export async function reviewAndFixCatalog(
         source: comp.source,
         saintId: comp.saintId,
         saintNameMarathi: comp.saint?.nameMarathi ?? null,
+        saintSlug: comp.saint?.slug ?? null,
         alternateTitles: comp.alternateTitles,
       };
 
@@ -593,7 +681,7 @@ export async function reviewAndFixCatalog(
           issuesByType[iss.type]++;
         }
 
-        const plan = generateCompositionFixPlan(candidate, issues);
+        const plan = generateCompositionFixPlan(candidate, issues, saintSlugToIdMap);
         if (plan) {
           if (sampleFixes.length < 15) {
             sampleFixes.push({ id: comp.id, issues: issues.map((i) => i.type), plan });
@@ -606,6 +694,7 @@ export async function reviewAndFixCatalog(
             if (plan.newFullText) updateData.fullText = plan.newFullText;
             if (plan.newMeaning) updateData.meaning = plan.newMeaning;
             if (plan.newAlternateTitles) updateData.alternateTitles = plan.newAlternateTitles;
+            if (plan.newSaintId) updateData.saintId = plan.newSaintId;
 
             await prisma.composition.update({
               where: { id: comp.id },

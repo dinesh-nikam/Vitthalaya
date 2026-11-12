@@ -110,6 +110,7 @@ async function main() {
   console.log(`    • EMBEDDED_MEANING:        ${catalogResult.issuesByType.EMBEDDED_MEANING}`);
   console.log(`    • GENERIC_SCRAPER_TITLE:   ${catalogResult.issuesByType.GENERIC_SCRAPER_TITLE}`);
   console.log(`    • MISALIGNED_REFERENCE:    ${catalogResult.issuesByType.MISALIGNED_REFERENCE}`);
+  console.log(`    • CRAWLER_JUNK_IN_VERSE:   ${catalogResult.issuesByType.CRAWLER_JUNK_IN_VERSE}`);
 
   if (catalogResult.sampleFixes.length > 0) {
     console.log('\n  Sample Fixes:');

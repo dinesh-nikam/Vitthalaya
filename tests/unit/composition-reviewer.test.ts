@@ -97,14 +97,15 @@ describe('Composition Reviewer Service', () => {
     it('detects Sant Tukaram from "तुका म्हणे"', () => {
       const text = 'तुका म्हणे आतां । मज ठाव द्यावा संतां ॥';
       const mudrika = detectMudrikaSaint(text);
-      expect(mudrika?.saintSlug).toBe('sant-tukaram');
-      expect(mudrika?.saintNameMarathi).toBe('संत तुकाराम');
+      expect(mudrika?.saintSlug).toBe('tukaram-maharaj');
+      expect(mudrika?.saintNameMarathi).toBe('तुकाराम महाराज');
     });
 
     it('detects Sant Dnyaneshwar from "बापरखुमादेविवरू"', () => {
       const text = 'ज्ञानदेव म्हणे बापरखुमादेविवरू । विठ्ठल सुखाचा आगरू ॥';
       const mudrika = detectMudrikaSaint(text);
-      expect(mudrika?.saintSlug).toBe('sant-dnyaneshwar');
+      expect(mudrika?.saintSlug).toBe('dnyaneshwar-maharaj');
+      expect(mudrika?.saintNameMarathi).toBe('ज्ञानेश्वर महाराज');
     });
   });
 

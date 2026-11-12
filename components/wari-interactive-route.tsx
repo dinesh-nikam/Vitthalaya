@@ -4,6 +4,61 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Footprints, ArrowRight, Waves } from 'lucide-react';
 
+// ── Cinematic milestone strip ─────────────────────────────────────────────
+// Five iconic waypoints that tell the visual story of the Wari journey.
+// Colors are deep earth tones matching the dark palette.
+interface VisualMilestone {
+  id: string;
+  title: string;
+  sub: string;
+  color: string;
+  icon: string;
+  desc: string;
+}
+
+const VISUAL_MILESTONES: VisualMilestone[] = [
+  {
+    id: 'start',
+    title: 'आळंदी / देहू',
+    sub: 'प्रस्थान · ०  किमी',
+    color: '#1e3a4a',
+    icon: '🕉',
+    desc: 'कोट्यवधी वारकऱ्यांची भक्ती यात्रा सुरू होते.',
+  },
+  {
+    id: 'dive',
+    title: 'दिवे घाट',
+    sub: 'सासवड · ५२ किमी',
+    color: '#2a4a2e',
+    icon: '⛰',
+    desc: 'पर्वत दर्यामधून सर्पाकार वाट आणि भगव्या ध्वजांचा डौल.',
+  },
+  {
+    id: 'jejuri',
+    title: 'जेजुरी भंडारा',
+    sub: '६८ किमी',
+    color: '#5a3a00',
+    icon: '✦',
+    desc: 'सोनेरी भंडाऱ्याची उधळण — पंढरीच्या वाटेवर जणू सोन्याचा वर्षाव.',
+  },
+  {
+    id: 'ringan',
+    title: 'लोणंद रिंगण',
+    sub: '९९ किमी',
+    color: '#3a1500',
+    icon: '◉',
+    desc: 'माऊलींच्या अश्वांचे वर्तुळाकार प्रदक्षिणा — आसमंत दुमदुमतो.',
+  },
+  {
+    id: 'pandharpur',
+    title: 'पंढरपूर',
+    sub: '२५० किमी',
+    color: '#1e3a4a',
+    icon: '☽',
+    desc: 'पवित्र चंद्रभागेत स्नान आणि विठ्ठल चरणी दंडवत.',
+  },
+];
+
 interface WariStop {
   day: number;
   location: string;
@@ -111,6 +166,40 @@ export function WariInteractiveRoute() {
         </div>
       </div>
 
+      {/* ── Visual milestone strip ─────────────────────────────────────── */}
+      <div
+        className="grid grid-cols-5 gap-1.5 mb-8"
+        role="list"
+        aria-label="वारी मुख्य टप्पे"
+      >
+        {VISUAL_MILESTONES.map((m, idx) => (
+          <div
+            key={m.id}
+            role="listitem"
+            title={m.desc}
+            className="relative rounded p-2.5 border border-[var(--dp-rule)] text-center overflow-hidden cursor-default"
+            style={{ background: `${m.color}33` }}
+          >
+            {/* Connecting line to the right */}
+            {idx < VISUAL_MILESTONES.length - 1 && (
+              <span
+                className="absolute top-1/2 -right-[3px] w-2 h-px bg-[var(--dp-rule-strong)] z-10"
+                aria-hidden="true"
+              />
+            )}
+            <span className="text-lg block mb-0.5 leading-none" aria-hidden="true">
+              {m.icon}
+            </span>
+            <p className="text-[9px] font-bold font-marathi text-[var(--dp-gold-celestial)] leading-tight">
+              {m.title}
+            </p>
+            <p className="text-[8px] text-[var(--dp-muted)] font-marathi mt-0.5 leading-tight">
+              {m.sub}
+            </p>
+          </div>
+        ))}
+      </div>
+
       {/* Main Interactive Grid */}
       <div className="grid md:grid-cols-12 gap-6 items-start">
         {/* Left Column: Scrollable Milestones Track */}
@@ -188,16 +277,23 @@ export function WariInteractiveRoute() {
             </p>
           </div>
 
-          {/* Progress Indicator */}
+          {/* Animated Wari progress bar */}
           <div className="pt-3 border-t border-[var(--dp-rule)]">
-            <div className="flex items-center justify-between text-[11px] font-marathi text-[var(--dp-muted)] mb-1.5">
+            <div className="flex items-center justify-between text-[11px] font-marathi text-[var(--dp-muted)] mb-2">
               <span>वारी प्रगती: {Math.round((currentStop.distanceKm / 250) * 100)}%</span>
-              <span>पंढरपूर अंतर: {250 - currentStop.distanceKm} किमी शिल्लक</span>
+              <span>शिल्लक: {250 - currentStop.distanceKm} किमी</span>
             </div>
-            <div className="w-full h-1.5 rounded-full bg-[var(--dp-ground)] overflow-hidden border border-[var(--dp-rule)]">
+            <div className="w-full h-2 rounded-full bg-[var(--dp-ground)] overflow-hidden border border-[var(--dp-rule)]">
               <div
-                className="h-full bg-[var(--dp-gold)]"
-                style={{ width: `${Math.max(4, Math.round((currentStop.distanceKm / 250) * 100))}%` }}
+                className="dp-wari-progress h-full rounded-full"
+                style={{
+                  width: `${Math.max(2, Math.round((currentStop.distanceKm / 250) * 100))}%`,
+                }}
+                role="progressbar"
+                aria-valuenow={Math.round((currentStop.distanceKm / 250) * 100)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="वारी अंतर प्रगती"
               />
             </div>
           </div>
