@@ -79,6 +79,8 @@ const CATEGORY_IMAGES: Record<string, string> = {
   aarti: '/images/categories/aarti.jpg',
   stotra: '/images/categories/stotra.jpg',
   haripath: '/images/categories/haripath.jpg',
+  gaulani: '/images/realistic/saint-devotional.jpg',
+  bharud: '/images/realistic/temple-aarti.jpg',
   default: '/images/realistic/ancient-manuscript.jpg',
 };
 

@@ -9,8 +9,8 @@ export const SAINT_IMAGE_MAP: Record<string, string> = {
   // Major Pillars of the Varkari Tradition with verified authentic portraits
   'dnyaneshwar-maharaj': '/images/saints/dnyaneshwar.jpg',
   'dnyaneshwar': '/images/saints/dnyaneshwar.jpg',
-  'tukaram-maharaj': '/images/saints/tukaram-birthplace.jpg',
-  'tukaram': '/images/saints/tukaram-birthplace.jpg',
+  'tukaram-maharaj': '/images/saints/sant-tukaram.jpg',
+  'tukaram': '/images/saints/sant-tukaram.jpg',
   'pundalik': '/images/saints/panduranga-vitthal.jpg',
   'bhakta-pundalik': '/images/saints/panduranga-vitthal.jpg',
 

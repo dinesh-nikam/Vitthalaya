@@ -3,6 +3,9 @@
 import * as React from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
+import { getSaintSeal } from '@/src/lib/saint-metadata';
 
 // Dynamically import Three.js components for performance optimization (Lighthouse 95+)
 const PalkhiViewer = dynamic(
@@ -306,6 +309,7 @@ export function CinematicJourney({ saints, categories, totalCompositions }: Cine
 function Saint3DTiltCard({ saint }: { saint: Saint }) {
   const cardRef = React.useRef<HTMLAnchorElement | null>(null);
   const [tilt, setTilt] = React.useState({ x: 0, y: 0 });
+  const seal = getSaintSeal(saint.slug, saint.nameMarathi);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
@@ -341,10 +345,24 @@ function Saint3DTiltCard({ saint }: { saint: Saint }) {
       className="group block bg-background rounded-2xl p-6 text-center border border-saffron/10 hover:border-saffron/40 shadow-sm flex flex-col justify-between items-center min-h-[320px] select-none cursor-pointer"
     >
       <div className="space-y-4 flex flex-col items-center">
-        {/* Avatars */}
-        <div className="w-20 h-20 rounded-full bg-saffron/10 text-saffron group-hover:bg-saffron/20 border border-saffron/10 flex items-center justify-center text-4xl shadow-inner transition-colors">
-          🙏
-        </div>
+        {/* Authentic Saint Portrait or Devanagari Monogram Seal */}
+        {seal.authenticPortrait ? (
+          <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-[var(--dp-gold)] shadow-md">
+            <Image
+              src={seal.authenticPortrait}
+              alt={saint.nameMarathi}
+              fill
+              sizes="80px"
+              className="object-cover"
+            />
+          </div>
+        ) : (
+          <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${seal.accentBg} text-[var(--dp-gold)] border border-[var(--dp-rule)] flex flex-col items-center justify-center shadow-inner`}>
+            <span className="text-2xl font-bold font-marathiHeading leading-none">
+              {seal.glyph}
+            </span>
+          </div>
+        )}
         
         <div>
           <span className="text-[10px] font-bold text-saffron font-sans bg-saffron/10 px-2 py-0.5 rounded-full">
@@ -367,7 +385,7 @@ function Saint3DTiltCard({ saint }: { saint: Saint }) {
 
       <div className="text-xs font-semibold text-saffron group-hover:underline pt-4 flex items-center gap-1">
         <span>चरित्र व अभंग संग्रह पहा</span>
-        <span>→</span>
+        <ArrowRight size={13} aria-hidden="true" />
       </div>
     </Link>
   );

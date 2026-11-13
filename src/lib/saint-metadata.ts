@@ -31,14 +31,14 @@ export const SAINT_SEALS: Record<string, SaintSealData> = {
     glyph: 'तु',
     mudra: 'तुका म्हणे',
     tradition: 'वारकरी संप्रदाय',
-    authenticPortrait: '/images/saints/tukaram-birthplace.jpg',
+    authenticPortrait: '/images/saints/sant-tukaram.jpg',
     accentBg: 'from-[#6B3208] to-[#361703]',
   },
   'tukaram': {
     glyph: 'तु',
     mudra: 'तुका म्हणे',
     tradition: 'वारकरी संप्रदाय',
-    authenticPortrait: '/images/saints/tukaram-birthplace.jpg',
+    authenticPortrait: '/images/saints/sant-tukaram.jpg',
     accentBg: 'from-[#6B3208] to-[#361703]',
   },
   'pundalik': {
