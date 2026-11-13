@@ -23,8 +23,8 @@ interface Vitthalaya3DSanctuaryProps {
 }
 
 const GENRE_TABS = [
-  { id: 'all', label: 'सर्व रचना', count: 22 },
-  { id: 'abhang', label: 'अभंग', count: 5 },
+  { id: 'all', label: 'सर्व रचना', count: 24 },
+  { id: 'abhang', label: 'अभंग', count: 7 },
   { id: 'gaulani', label: 'गवळण', count: 3 },
   { id: 'bharud', label: 'भारुड', count: 3 },
   { id: 'deviche_gane', label: 'देवीचे गाणे व आरती', count: 2 },
@@ -42,6 +42,7 @@ export function Vitthalaya3DSanctuary({
   const [selectedIndex, setSelectedIndex] = React.useState<number>(0);
   const [viewMode, setViewMode] = React.useState<'3d' | 'grid'>('3d');
   const [isPlayingAudio, setIsPlayingAudio] = React.useState(false);
+  const [audioTrack, setAudioTrack] = React.useState<'music' | 'report'>('music');
   const [inspectorOpen, setInspectorOpen] = React.useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(false);
 
@@ -84,6 +85,26 @@ export function Vitthalaya3DSanctuary({
       }).catch((e) => {
         console.warn('Audio play restricted by browser policy:', e);
       });
+    }
+  };
+
+  const switchAudioTrack = (track: 'music' | 'report') => {
+    setAudioTrack(track);
+    if (audioRef.current) {
+      const wasPlaying = isPlayingAudio;
+      audioRef.current.pause();
+      audioRef.current.src =
+        track === 'report'
+          ? '/audio/newly_scraped_summary.wav'
+          : '/audio/regional_music_intelligence_summary.wav';
+      audioRef.current.load();
+      if (wasPlaying) {
+        audioRef.current.play().then(() => {
+          setIsPlayingAudio(true);
+        }).catch(() => {
+          setIsPlayingAudio(false);
+        });
+      }
     }
   };
 
@@ -422,9 +443,13 @@ export function Vitthalaya3DSanctuary({
       {/* Hidden Audio Element */}
       <audio
         ref={audioRef}
-        src="/audio/regional_music_intelligence_summary.wav"
+        src={
+          audioTrack === 'report'
+            ? '/audio/newly_scraped_summary.wav'
+            : '/audio/regional_music_intelligence_summary.wav'
+        }
         preload="metadata"
-        loop
+        loop={audioTrack === 'music'}
         onEnded={() => setIsPlayingAudio(false)}
       />
 
@@ -435,7 +460,7 @@ export function Vitthalaya3DSanctuary({
             <Sparkles size={14} className="text-[#f6bc55]" />
             <span>डिजिटल पंढरपूर ३D व्हर्च्युअल मंदाकिनी</span>
             <span className="inline-block w-1 h-1 rounded-full bg-[#f6bc55]" />
-            <span className="text-emerald-400 font-sans">२१ पवित्र रचना</span>
+            <span className="text-emerald-400 font-sans">{SCRAPED_COMPOSITIONS.length} पवित्र रचना</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold font-marathi text-[#fff8ec] mt-0.5">
             ३D संगीत मंडप : पवित्र स्वर दर्शन
@@ -443,7 +468,7 @@ export function Vitthalaya3DSanctuary({
         </div>
 
         {/* View Mode & Audio Toolbar */}
-        <div className="flex items-center gap-2 self-start md:self-auto">
+        <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
           {/* Audio Recitation Player Button */}
           <button
             onClick={toggleAudio}
@@ -457,7 +482,7 @@ export function Vitthalaya3DSanctuary({
             {isPlayingAudio ? (
               <>
                 <Pause size={13} />
-                <span>स्वर चालू आहे</span>
+                <span>{audioTrack === 'report' ? 'अहवाल चालू आहे' : 'स्वर चालू आहे'}</span>
                 <span className="flex gap-0.5 items-end h-3 ml-1">
                   <span className="w-0.5 bg-black animate-[bounce_0.6s_infinite]" />
                   <span className="w-0.5 bg-black animate-[bounce_0.8s_infinite_0.2s]" />
@@ -467,10 +492,36 @@ export function Vitthalaya3DSanctuary({
             ) : (
               <>
                 <Play size={13} />
-                <span>ऑडिओ विवरण ऐका</span>
+                <span>{audioTrack === 'report' ? 'अहवाल ऐका' : 'स्वर ऐका'}</span>
               </>
             )}
           </button>
+
+          {/* Audio Track Selector */}
+          <div className="flex bg-[#24170d] rounded-lg p-0.5 border border-[#c9a227]/30 text-xs font-marathi">
+            <button
+              onClick={() => switchAudioTrack('music')}
+              className={`px-2.5 py-1 rounded-md transition-colors ${
+                audioTrack === 'music'
+                  ? 'bg-[#c9a227] text-black font-semibold'
+                  : 'text-[#d6c4a8] hover:text-white'
+              }`}
+              title="संगीत स्वर (Regional Acoustic Composition)"
+            >
+              स्वर
+            </button>
+            <button
+              onClick={() => switchAudioTrack('report')}
+              className={`px-2.5 py-1 rounded-md transition-colors ${
+                audioTrack === 'report'
+                  ? 'bg-[#c9a227] text-black font-semibold'
+                  : 'text-[#d6c4a8] hover:text-white'
+              }`}
+              title="वाचन अहवाल (Audio Report Summary)"
+            >
+              अहवाल
+            </button>
+          </div>
 
           {/* 3D vs Grid Toggle */}
           <div className="flex bg-[#24170d] rounded-lg p-0.5 border border-[#c9a227]/30">

@@ -4,51 +4,55 @@
  * Offline fallback page — shown when the user navigates without connectivity
  * and the page is not in the service worker cache.
  */
+import Link from 'next/link';
+import { WifiOff, RefreshCw, Home, Sparkles } from 'lucide-react';
+import '@/app/homepage.css';
 
 export default function OfflinePage() {
   return (
-    <div className="min-h-screen bg-cream-50 flex items-center justify-center">
-      <div className="text-center max-w-md mx-auto px-4">
-        {/* Temple bell icon */}
-        <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-saffron-50 flex items-center justify-center">
-          <svg className="w-12 h-12 text-saffron" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-          </svg>
+    <div className="vitthalaya-shell min-h-screen flex items-center justify-center p-4">
+      <div className="vitthalaya-card rounded-2xl p-8 sm:p-10 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] shadow-2xl max-w-md w-full text-center space-y-6">
+        {/* Offline indicator */}
+        <div className="w-16 h-16 mx-auto rounded-full bg-[var(--dp-ground-elevated)] border border-[var(--dp-gold)] flex items-center justify-center text-[var(--dp-gold)] shadow-[0_0_15px_rgba(201,162,39,0.25)]">
+          <WifiOff className="w-8 h-8" />
         </div>
 
-        <h1 className="text-3xl font-bold text-maroon-800 mb-2">
-          ऑफलाइन
-        </h1>
-        <div className="w-16 h-0.5 bg-saffron mx-auto mb-4" />
+        <div>
+          <span className="inline-flex items-center gap-1 px-3 py-1 bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] text-[var(--dp-gold)] text-xs font-marathi rounded-full mb-2">
+            इंटरनेट अनुपलब्ध
+          </span>
+          <h1 className="vitthalaya-display text-2xl sm:text-3xl font-bold mb-2">
+            आपण सध्या ऑफलाइन आहात
+          </h1>
+          <p className="text-xs sm:text-sm font-marathi text-[var(--dp-muted)] leading-relaxed">
+            कृपया आपले इंटरनेट कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.
+          </p>
+        </div>
 
-        <p className="text-gray-600 mb-6 leading-relaxed">
-          तुम्ही सध्या ऑफलाइन आहात. कृपया इंटरनेट कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.
-        </p>
-        <p className="text-gray-500 text-sm mb-8">
-          You are currently offline. Please check your internet connection and try again.
-        </p>
-
-        <div className="space-y-3">
-          <a
-            href="/"
-            className="inline-block px-6 py-3 bg-saffron text-white rounded-lg hover:bg-saffron-600 transition-colors font-medium"
-          >
-            मुख्यपृष्ठ
-          </a>
-          <br />
+        <div className="space-y-3 pt-2">
           <button
+            type="button"
             onClick={() => window.location.reload()}
-            className="mt-2 text-sm text-saffron hover:underline"
+            className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-[var(--dp-gold)] text-[#0d0906] font-semibold text-xs sm:text-sm font-marathi rounded-lg hover:bg-[var(--dp-gold-celestial)] transition-colors min-h-[44px] shadow-sm"
           >
-            पुन्हा प्रयत्न करा
+            <RefreshCw size={14} />
+            <span>पुन्हा प्रयत्न करा (Reload)</span>
           </button>
+
+          <Link
+            href="/"
+            className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-[var(--dp-ground-elevated)] text-[var(--dp-ink)] border border-[var(--dp-rule)] hover:border-[var(--dp-gold)] hover:text-[var(--dp-gold)] font-medium text-xs sm:text-sm font-marathi rounded-lg transition-colors min-h-[44px]"
+          >
+            <Home size={14} />
+            <span>मुख्य मंदिराकडे परत</span>
+          </Link>
         </div>
 
         {/* Cached content hint */}
-        <div className="mt-10 p-4 bg-white rounded-xl shadow-sm">
-          <p className="text-xs text-gray-400">
-            💡 पूर्वी भेट दिलेली पृष्ठे ऑफलाइन उपलब्ध असू शकतात.
-            {' '}Previously visited pages may be available offline.
+        <div className="p-4 rounded-xl border border-[var(--dp-rule)]/60 bg-[var(--dp-ground-elevated)] text-left flex items-start gap-3">
+          <Sparkles size={16} className="text-[var(--dp-gold)] shrink-0 mt-0.5" />
+          <p className="text-xs font-marathi text-[var(--dp-muted)] leading-relaxed">
+            टीप: पूर्वी वाचलेले अभंग व नित्यनेम आपल्या डिव्हाइसवर ऑफलाइन सुरक्षित जतन केलेले असू शकतात.
           </p>
         </div>
       </div>

@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { db } from '../../../src/db/client';
+import { ArrowLeft, ChevronRight, Library, User } from 'lucide-react';
+import '@/app/homepage.css';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -18,11 +20,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     select: { name: true, description: true },
   });
 
-  if (!list) return { title: 'List not found — Digital Pandharpur' };
+  if (!list) return { title: 'वाचन यादी सापडली नाही | Digital Pandharpur' };
 
   return {
-    title: `${list.name} — Reading List | Digital Pandharpur`,
-    description: list.description ?? `Reading list: ${list.name}`,
+    title: `${list.name} — वाचन यादी | Digital Pandharpur`,
+    description: list.description ?? `वारकरी वाचन यादी: ${list.name}`,
+    openGraph: {
+      title: `${list.name} — वाचन यादी | Digital Pandharpur`,
+      description: list.description ?? `वारकरी वाचन यादी: ${list.name}`,
+      locale: 'mr_IN',
+    },
   };
 }
 
@@ -37,7 +44,15 @@ export default async function ReadingListDetailPage({ params }: Props) {
         orderBy: { sortOrder: 'asc' },
         include: {
           composition: {
-            select: { id: true, titleMarathi: true, type: true, slug: true },
+            select: {
+              id: true,
+              titleMarathi: true,
+              titleTranslit: true,
+              type: true,
+              slug: true,
+              audioLinks: true,
+              saint: { select: { nameMarathi: true, slug: true } },
+            },
           },
         },
       },
@@ -50,72 +65,144 @@ export default async function ReadingListDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-cream-50">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-maroon-800 to-maroon-900 text-white">
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <Link href="/reading-lists" className="text-saffron-300 hover:text-saffron-200 text-sm mb-4 inline-block">
-            ← वाचन यादी
+    <div className="vitthalaya-shell min-h-screen py-10">
+      <div className="vitthalaya-container max-w-4xl">
+        {/* Breadcrumb Navigation */}
+        <nav className="mb-6" aria-label="ब्रेडक्रंब">
+          <ol className="flex items-center gap-2 text-xs font-marathi text-[var(--dp-muted)]">
+            <li>
+              <Link href="/" className="hover:text-[var(--dp-gold)] transition-colors">
+                मुख्यपृष्ठ
+              </Link>
+            </li>
+            <li aria-hidden="true">
+              <ChevronRight size={12} />
+            </li>
+            <li>
+              <Link href="/reading-lists" className="hover:text-[var(--dp-gold)] transition-colors">
+                वाचन यादी
+              </Link>
+            </li>
+            <li aria-hidden="true">
+              <ChevronRight size={12} />
+            </li>
+            <li className="text-[var(--dp-ink)] font-medium truncate max-w-xs">{list.name}</li>
+          </ol>
+        </nav>
+
+        {/* Back Link */}
+        <div className="mb-6">
+          <Link
+            href="/reading-lists"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-marathi border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] text-[var(--dp-gold)] hover:bg-[var(--dp-gold)] hover:text-[#110c08] transition-colors min-h-[44px]"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>सर्व वाचन याद्यांकडे परत</span>
           </Link>
-          <h1 className="text-3xl font-bold mt-2">{list.name}</h1>
+        </div>
+
+        {/* List Header Card */}
+        <header className="vitthalaya-card rounded-2xl p-6 sm:p-8 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] shadow-lg mb-8">
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] text-[var(--dp-gold)] text-xs font-marathi rounded-full">
+              <Library size={12} />
+              सार्वजनिक वाचन यादी
+            </span>
+            <span className="text-xs px-2.5 py-1 rounded-full bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] text-[var(--dp-muted)] font-marathi">
+              {list.compositions.length} रचना
+            </span>
+          </div>
+
+          <h1 className="vitthalaya-display text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
+            {list.name}
+          </h1>
+
           {list.description && (
-            <p className="text-sand-200 mt-2 text-sm">{list.description}</p>
+            <p className="text-sm font-marathi text-[var(--dp-muted)] leading-relaxed mb-4">
+              {list.description}
+            </p>
           )}
-          <div className="flex items-center gap-4 mt-4 text-sm text-sand-300">
-            <span>{list.compositions.length} रचना</span>
-            {(list.user?.name ?? list.creator?.name) && (
+
+          <div className="flex items-center gap-3 pt-3 border-t border-[var(--dp-rule)]/50 text-xs font-marathi text-[var(--dp-muted)]">
+            {list.user?.name ? (
+              <span className="flex items-center gap-1.5">
+                <span className="w-6 h-6 rounded-full bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] flex items-center justify-center text-[10px] text-[var(--dp-gold)] font-bold">
+                  {list.user.name.charAt(0)}
+                </span>
+                <span>संकलक: <strong className="text-[var(--dp-ink)]">{list.user.name}</strong></span>
+              </span>
+            ) : (
               <span className="flex items-center gap-1">
-                by {list.user?.name ?? list.creator?.name}
+                <User size={12} />
+                <span>वारकरी संकलक</span>
               </span>
             )}
           </div>
-        </div>
-      </div>
+        </header>
 
-      {/* Composition List */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {list.compositions.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-            <p className="text-gray-500">या यादीत अजून रचना नाहीत.</p>
-          </div>
-        ) : (
-          <div className="bg-white rounded-xl shadow-sm divide-y divide-gray-50">
-            {list.compositions.map((item, i) => (
-              <Link
-                key={item.id}
-                href={`/${item.composition.type.toLowerCase()}/${item.composition.slug}`}
-                className="flex items-center justify-between px-6 py-4 hover:bg-sand-50 transition-colors group"
-              >
-                <div className="flex items-center gap-4">
-                  <span className="text-xs text-gray-400 w-6 text-right font-mono">
-                    {i + 1}.
-                  </span>
-                  <div>
-                    <span className="text-sm font-medium text-gray-800 group-hover:text-saffron transition-colors">
-                      {item.composition.titleMarathi}
-                    </span>
-                    {item.notes && (
-                      <p className="text-xs text-gray-400 mt-0.5">{item.notes}</p>
-                    )}
-                  </div>
-                </div>
-                <span className="text-xs px-2 py-0.5 bg-saffron-50 text-saffron-700 rounded">
-                  {item.composition.type}
-                </span>
-              </Link>
-            ))}
-          </div>
-        )}
-
-        {/* Navigation */}
-        <div className="mt-8 text-center">
-          <Link
-            href="/reading-lists"
-            className="inline-block px-6 py-3 bg-saffron text-white rounded-lg hover:bg-saffron-600 transition-colors"
+        {/* Composition List */}
+        <section aria-labelledby="composition-list-heading" className="space-y-4">
+          <h2
+            id="composition-list-heading"
+            className="vitthalaya-display text-lg font-bold text-[var(--dp-gold)] mb-4"
           >
-            ← सर्व वाचन यादी
-          </Link>
-        </div>
+            समाविष्ट रचना सूची
+          </h2>
+
+          {list.compositions.length === 0 ? (
+            <div className="vitthalaya-card rounded-2xl p-8 text-center border border-[var(--dp-rule)] bg-[var(--dp-ground-well)]">
+              <p className="text-xs font-marathi text-[var(--dp-muted)]">
+                या यादीत अजून कोणत्याही रचना जोडलेल्या नाहीत.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {list.compositions.map((item, i) => (
+                <Link
+                  key={item.id}
+                  href={`/${item.composition.type.toLowerCase()}/${item.composition.slug}`}
+                  className="group vitthalaya-card rounded-xl p-4 sm:p-5 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] hover:border-[var(--dp-gold)] transition-all flex items-center justify-between gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dp-gold)] min-h-[56px]"
+                >
+                  <div className="flex items-center gap-4 min-w-0">
+                    <span className="text-xs font-mono text-[var(--dp-muted)] w-6 shrink-0 text-right">
+                      {i + 1}.
+                    </span>
+
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm sm:text-base font-bold font-marathi text-[var(--dp-ink)] group-hover:text-[var(--dp-gold)] transition-colors truncate">
+                          {item.composition.titleMarathi}
+                        </span>
+                        {item.composition.saint && (
+                          <span className="text-[11px] font-marathi px-2 py-0.5 rounded bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] text-[var(--dp-muted)] shrink-0">
+                            {item.composition.saint.nameMarathi}
+                          </span>
+                        )}
+                      </div>
+
+                      {item.notes ? (
+                        <p className="text-xs font-marathi text-[var(--dp-muted)] line-clamp-1">
+                          {item.notes}
+                        </p>
+                      ) : (
+                        <p className="text-xs font-marathi text-[var(--dp-muted)]">
+                          {item.composition.type} • {item.composition.titleTranslit}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-xs font-marathi text-[var(--dp-gold)] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all hidden sm:inline">
+                      वाचा →
+                    </span>
+                    <ChevronRight size={14} className="text-[var(--dp-muted)] group-hover:text-[var(--dp-gold)] transition-colors" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

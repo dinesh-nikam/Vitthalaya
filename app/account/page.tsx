@@ -2,115 +2,162 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/src/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { User, MapPin, Award, Shield } from 'lucide-react';
+import { User, MapPin, Award, Shield, ChevronRight, BookOpen, Package, Users } from 'lucide-react';
+import '@/app/homepage.css';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'माझे खाते - डिजिटल पंढरपूर',
-  description: 'तुमचे डिजिटल पंढरपूर खाते व्यवस्थापन.',
+  title: 'माझे खाते | डिजिटल पंढरपूर',
+  description: 'तुमचे डिजिटल पंढरपूर खाते, प्रोफाइल, पत्ते आणि वाचन संग्रह व्यवस्थापन.',
 };
 
 export default async function AccountPage() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     redirect('/auth/signin');
   }
 
-  const user = session.user as any;
+  const user = session.user as {
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    role?: string;
+    reputationScore?: number;
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl space-y-6">
-      {/* Breadcrumb */}
-      <nav aria-label="ब्रेडक्रंब" className="mb-4">
-        <ol className="flex items-center gap-2 text-sm text-muted-foreground">
-          <li><Link href="/" className="hover:text-saffron">मुख्यपृष्ठ</Link></li>
-          <li aria-hidden="true">›</li>
-          <li className="text-foreground">माझे खाते</li>
-        </ol>
-      </nav>
-
-      <header className="mb-8">
-        <h1 className="text-3xl font-marathiHeading font-bold text-maroon dark:text-saffron">
-          माझे खाते 🚩
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          तुमच्या प्रोफाइलची माहिती, पत्ते आणि समुदाय योगदान व्यवस्थापित करा.
-        </p>
-      </header>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Profile Card Summary */}
-        <div className="bg-card border-2 border-saffron/20 p-6 rounded-2xl shadow-md space-y-4">
-          <div className="w-20 h-20 bg-saffron/10 border border-saffron/20 rounded-full flex items-center justify-center text-4xl mx-auto">
-            👤
-          </div>
-          <div className="text-center space-y-1">
-            <h2 className="font-bold text-lg text-foreground">{user.name}</h2>
-            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-          </div>
-          
-          <div className="border-t border-saffron/10 pt-4 flex justify-between items-center text-xs">
-            <span className="text-muted-foreground">Reputation Score:</span>
-            <span className="font-bold text-saffron bg-saffron/10 px-2 py-0.5 rounded-full flex items-center gap-1">
-              <Award className="w-3.5 h-3.5" /> {user.reputationScore || 0}
-            </span>
-          </div>
-
-          <div className="flex justify-between items-center text-xs">
-            <span className="text-muted-foreground">भूमिका (Role):</span>
-            <span className="font-bold text-maroon dark:text-saffron bg-maroon/5 dark:bg-saffron/10 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-              <Shield className="w-3.5 h-3.5" /> {user.role}
-            </span>
-          </div>
-        </div>
-
-        {/* Action Options */}
-        <div className="md:col-span-2 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* View Profile */}
-            <Link
-              href={`/profile/${user.id}`}
-              className="flex items-start gap-4 p-5 rounded-2xl border border-saffron/10 bg-card hover:border-saffron/30 hover:bg-saffron/5 transition-all shadow-sm group"
-            >
-              <div className="w-10 h-10 rounded-xl bg-saffron/10 flex items-center justify-center shrink-0">
-                <User className="w-5 h-5 text-saffron" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="font-bold text-sm text-foreground group-hover:text-saffron transition-colors">माझी प्रोफाइल</h3>
-                <p className="text-xs text-muted-foreground">तुमचे चरित्र आणि दिलेली भक्ती योगदाने पहा.</p>
-              </div>
-            </Link>
-
-            {/* Address Management */}
-            <Link
-              href="/account/addresses"
-              className="flex items-start gap-4 p-5 rounded-2xl border border-saffron/10 bg-card hover:border-saffron/30 hover:bg-saffron/5 transition-all shadow-sm group"
-            >
-              <div className="w-10 h-10 rounded-xl bg-saffron/10 flex items-center justify-center shrink-0">
-                <MapPin className="w-5 h-5 text-saffron" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="font-bold text-sm text-foreground group-hover:text-saffron transition-colors">पत्ता व्यवस्थापन</h3>
-                <p className="text-xs text-muted-foreground">पुस्तके मागवण्यासाठी तुमचे डिलिव्हरी पत्ते जतन करा.</p>
-              </div>
-            </Link>
-          </div>
-
-          {/* Settings / Logs */}
-          <div className="bg-card border border-saffron/10 p-6 rounded-2xl shadow-sm space-y-4">
-            <h3 className="font-bold text-sm text-foreground border-b border-saffron/10 pb-2">प्रणाली पर्याय (System Options)</h3>
-            <div className="flex flex-wrap gap-2 text-xs">
-              <Link href="/reading-lists" className="px-3 py-1.5 rounded-lg border hover:bg-muted transition-colors">
-                वाचन सूची (Reading Lists)
+    <div className="vitthalaya-shell min-h-screen py-10">
+      <div className="vitthalaya-container max-w-4xl space-y-6">
+        {/* Breadcrumb Navigation */}
+        <nav aria-label="ब्रेडक्रंब" className="mb-2">
+          <ol className="flex items-center gap-2 text-xs font-marathi text-[var(--dp-muted)]">
+            <li>
+              <Link href="/" className="hover:text-[var(--dp-gold)] transition-colors">
+                मुख्यपृष्ठ
               </Link>
-              <Link href="/orders" className="px-3 py-1.5 rounded-lg border hover:bg-muted transition-colors">
-                ऑर्डर्स (Orders)
+            </li>
+            <li aria-hidden="true">
+              <ChevronRight size={12} />
+            </li>
+            <li className="text-[var(--dp-ink)] font-medium">माझे खाते</li>
+          </ol>
+        </nav>
+
+        {/* Header */}
+        <header className="mb-8">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[var(--dp-ground-well)] border border-[var(--dp-rule)] text-[var(--dp-gold)] text-xs font-marathi rounded-full mb-3">
+            <User size={12} />
+            वारकरी साधक खाते
+          </span>
+          <h1 className="vitthalaya-display text-2xl sm:text-3xl md:text-4xl font-bold mb-1">
+            माझे खाते व्यवस्थापन
+          </h1>
+          <p className="text-xs sm:text-sm font-marathi text-[var(--dp-muted)]">
+            आपली वैयक्तिक माहिती, ग्रंथ वितरण पत्ते आणि संकलित योगदाने नियंत्रित करा.
+          </p>
+        </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Profile Card Summary */}
+          <div className="vitthalaya-card border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] p-6 rounded-2xl shadow-lg space-y-5">
+            <div className="w-20 h-20 bg-[var(--dp-ground-elevated)] border border-[var(--dp-gold)] rounded-full flex items-center justify-center text-[var(--dp-gold)] mx-auto shadow-[0_0_15px_rgba(201,162,39,0.25)]">
+              <User size={32} />
+            </div>
+
+            <div className="text-center space-y-1">
+              <h2 className="font-bold font-marathi text-base sm:text-lg text-[var(--dp-ink)]">
+                {user.name ?? 'वारकरी साधक'}
+              </h2>
+              <p className="text-xs font-mono text-[var(--dp-muted)] truncate">{user.email}</p>
+            </div>
+
+            <div className="border-t border-[var(--dp-rule)]/50 pt-4 space-y-2.5 text-xs font-marathi">
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--dp-muted)]">साधक प्रतिष्ठा (Score):</span>
+                <span className="font-bold text-[var(--dp-gold)] bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+                  <Award size={13} /> {user.reputationScore || 0}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--dp-muted)]">भूमिका (Role):</span>
+                <span className="font-bold text-[var(--dp-ink)] bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+                  <Shield size={13} className="text-[var(--dp-gold)]" /> {user.role ?? 'USER'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Options */}
+          <div className="md:col-span-2 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* View Profile */}
+              <Link
+                href={`/profile/${user.id}`}
+                className="vitthalaya-card flex items-start gap-4 p-5 rounded-2xl border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] hover:border-[var(--dp-gold)] transition-all shadow-sm group min-h-[56px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dp-gold)]"
+              >
+                <div className="w-10 h-10 rounded-xl bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] flex items-center justify-center shrink-0 text-[var(--dp-gold)] group-hover:bg-[var(--dp-gold)] group-hover:text-[#0d0906] transition-colors">
+                  <User size={18} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-bold font-marathi text-sm text-[var(--dp-ink)] group-hover:text-[var(--dp-gold)] transition-colors">
+                    माझी साधक प्रोफाइल
+                  </h3>
+                  <p className="text-xs font-marathi text-[var(--dp-muted)]">
+                    आपले परिचय पत्र, आवडीचे अभंग व दिलेली भक्ती योगदाने पहा.
+                  </p>
+                </div>
               </Link>
-              <Link href="/community" className="px-3 py-1.5 rounded-lg border hover:bg-muted transition-colors">
-                समुदाय चर्चा (Community)
+
+              {/* Address Management */}
+              <Link
+                href="/account/addresses"
+                className="vitthalaya-card flex items-start gap-4 p-5 rounded-2xl border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] hover:border-[var(--dp-gold)] transition-all shadow-sm group min-h-[56px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dp-gold)]"
+              >
+                <div className="w-10 h-10 rounded-xl bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] flex items-center justify-center shrink-0 text-[var(--dp-gold)] group-hover:bg-[var(--dp-gold)] group-hover:text-[#0d0906] transition-colors">
+                  <MapPin size={18} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-bold font-marathi text-sm text-[var(--dp-ink)] group-hover:text-[var(--dp-gold)] transition-colors">
+                    वितरण पत्ते (Addresses)
+                  </h3>
+                  <p className="text-xs font-marathi text-[var(--dp-muted)]">
+                    मुद्रित पुस्तके घरपोच मागवण्यासाठी डिलिव्हरी पत्ते जतन करा.
+                  </p>
+                </div>
               </Link>
+            </div>
+
+            {/* Quick Links Section */}
+            <div className="vitthalaya-card border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] p-6 rounded-2xl shadow-sm space-y-4">
+              <h3 className="font-bold font-marathi text-sm text-[var(--dp-gold)] border-b border-[var(--dp-rule)]/50 pb-2">
+                द्रुत सेवा व दालने
+              </h3>
+              <div className="flex flex-wrap gap-2.5 text-xs font-marathi">
+                <Link
+                  href="/reading-lists"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[var(--dp-rule)] bg-[var(--dp-ground-elevated)] text-[var(--dp-ink)] hover:border-[var(--dp-gold)] hover:text-[var(--dp-gold)] transition-colors min-h-[44px]"
+                >
+                  <BookOpen size={14} />
+                  <span>वाचन सूची (Reading Lists)</span>
+                </Link>
+                <Link
+                  href="/orders"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[var(--dp-rule)] bg-[var(--dp-ground-elevated)] text-[var(--dp-ink)] hover:border-[var(--dp-gold)] hover:text-[var(--dp-gold)] transition-colors min-h-[44px]"
+                >
+                  <Package size={14} />
+                  <span>माझे ऑर्डर्स (Orders)</span>
+                </Link>
+                <Link
+                  href="/community"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[var(--dp-rule)] bg-[var(--dp-ground-elevated)] text-[var(--dp-ink)] hover:border-[var(--dp-gold)] hover:text-[var(--dp-gold)] transition-colors min-h-[44px]"
+                >
+                  <Users size={14} />
+                  <span>समुदाय मंच (Community)</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

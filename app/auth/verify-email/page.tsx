@@ -3,7 +3,8 @@
 import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Loader2, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
+import { Loader2, ShieldCheck, AlertCircle, ArrowLeft, CheckCircle2, Sparkles, Mail } from 'lucide-react';
+import '@/app/homepage.css';
 
 function VerifyEmailForm() {
   const router = useRouter();
@@ -29,7 +30,7 @@ function VerifyEmailForm() {
     setSuccess(null);
 
     if (!email || !token) {
-      setError('कृपया ईमेल आणि पडताळणी कोड (OTP) दोन्ही टाका.');
+      setError('कृपया ईमेल आणि पडताळणी कोड (OTP) दोन्ही प्रविष्ट करा.');
       setLoading(false);
       return;
     }
@@ -48,7 +49,7 @@ function VerifyEmailForm() {
       if (!res.ok) {
         setError(data.error || 'कोड पडताळणी अयशस्वी झाली.');
       } else {
-        setSuccess('ईमेल पडताळणी यशस्वी झाली! लॉगिन करत आहे...');
+        setSuccess('ईमेल पडताळणी यशस्वी झाली! लॉगिन करत आहोत...');
         setTimeout(() => {
           router.push('/auth/signin');
         }, 1500);
@@ -60,70 +61,82 @@ function VerifyEmailForm() {
     }
   };
 
+  const inputClass =
+    'w-full px-4 py-2.5 rounded-lg border border-[var(--dp-rule)] bg-[var(--dp-ground-elevated)] text-[var(--dp-ink)] placeholder-[var(--dp-muted)] focus:border-[var(--dp-gold)] focus:ring-2 focus:ring-[var(--dp-gold)]/20 outline-none text-xs sm:text-sm font-marathi transition-colors min-h-[44px]';
+
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-cream/30 px-4 py-12 dark:bg-background">
-      <div className="max-w-md w-full space-y-8 bg-card border-2 border-saffron/20 p-8 rounded-2xl shadow-xl">
-        
+    <div className="vitthalaya-shell min-h-screen flex items-center justify-center p-4 py-12">
+      <div className="vitthalaya-card rounded-2xl p-6 sm:p-8 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] shadow-2xl max-w-md w-full space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 bg-saffron/10 border border-saffron/20 rounded-full flex items-center justify-center mx-auto text-3xl">
-            ✉️
+          <div className="w-14 h-14 bg-[var(--dp-ground-elevated)] border border-[var(--dp-gold)] rounded-full flex items-center justify-center mx-auto text-[var(--dp-gold)] shadow-[0_0_15px_rgba(201,162,39,0.25)]">
+            <Mail className="w-6 h-6" />
           </div>
-          <h1 className="font-marathiHeading text-2xl font-bold text-maroon dark:text-saffron">
-            ईमेल पडताळणी (Verify Email)
+          <span className="inline-flex items-center gap-1 px-3 py-0.5 bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] text-[var(--dp-gold)] text-xs font-marathi rounded-full">
+            <Sparkles size={11} />
+            ईमेल ओळख प्रमाणीकरण
+          </span>
+          <h1 className="vitthalaya-display text-2xl font-bold">
+            ईमेल पडताळणी
           </h1>
-          <p className="text-sm text-muted-foreground">
-            आम्ही तुमच्या नोंदणीकृत ईमेलवर पाठवलेला ६-अंकी कोड (OTP) प्रविष्ट करा
+          <p className="text-xs font-marathi text-[var(--dp-muted)] leading-relaxed">
+            आम्ही आपल्या ईमेलवर पाठवलेला ६-अंकी सुरक्षित पडताळणी कोड (OTP) प्रविष्ट करा
           </p>
         </div>
 
         {/* Status Messages */}
         {error && (
-          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-lg p-3 flex gap-2 items-start text-sm text-red-600 dark:text-red-400">
-            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <div className="bg-red-950/40 border border-red-500/30 rounded-xl p-3.5 flex gap-2.5 items-start text-xs font-marathi text-red-300">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-400" />
             <p>{error}</p>
           </div>
         )}
 
         {success && (
-          <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 rounded-lg p-3 text-sm text-green-600 dark:text-green-400">
+          <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-3.5 flex gap-2.5 items-start text-xs font-marathi text-emerald-300">
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-400" />
             <p>{success}</p>
           </div>
         )}
 
-        {/* Verification Form */}
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-3">
-            {/* Email Field */}
-            <div className="space-y-1">
-              <label htmlFor="email" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                ईमेल पत्ता (Email)
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1.5"
+              >
+                ईमेल पत्ता *
               </label>
               <input
                 id="email"
                 type="email"
+                autoComplete="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@warkari.org"
-                className="w-full px-4 py-2 border border-saffron/20 focus:border-saffron focus:ring-2 focus:ring-saffron/20 bg-background rounded-lg text-sm outline-none transition-all"
+                placeholder="contributor@warkari.org"
+                className={inputClass}
               />
             </div>
 
-            {/* Token/OTP Field */}
-            <div className="space-y-1">
-              <label htmlFor="token" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                पडताळणी कोड / ओटीपी (Verification Code / OTP)
+            <div>
+              <label
+                htmlFor="token"
+                className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1.5"
+              >
+                पडताळणी कोड (६-अंकी OTP) *
               </label>
               <input
                 id="token"
                 type="text"
                 required
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-                placeholder="६-अंकी कोड प्रविष्ट करा"
                 maxLength={6}
-                className="w-full px-4 py-2 text-center text-lg tracking-widest font-mono border border-saffron/20 focus:border-saffron focus:ring-2 focus:ring-saffron/20 bg-background rounded-lg outline-none transition-all"
+                value={token}
+                onChange={(e) => setToken(e.target.value.trim())}
+                placeholder="उदा. 123456"
+                className="w-full px-4 py-2.5 rounded-lg border border-[var(--dp-rule)] bg-[var(--dp-ground-elevated)] text-[var(--dp-gold)] placeholder-[var(--dp-muted)] focus:border-[var(--dp-gold)] focus:ring-2 focus:ring-[var(--dp-gold)]/20 outline-none text-center font-mono text-lg tracking-widest transition-colors min-h-[44px]"
               />
             </div>
           </div>
@@ -131,42 +144,31 @@ function VerifyEmailForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-lg text-sm font-semibold text-white bg-saffron hover:bg-saffron/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-saffron transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-md"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-xs sm:text-sm font-semibold font-marathi text-[#0d0906] bg-[var(--dp-gold)] hover:bg-[var(--dp-gold-celestial)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dp-gold)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md min-h-[44px]"
           >
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>पडताळणी सुरू आहे...</span>
+                <span>पडताळणी होत आहे...</span>
               </>
             ) : (
               <>
                 <ShieldCheck className="w-4 h-4" />
-                <span>कोड पडताळणी करा</span>
+                <span>कोड पडताळा (Verify)</span>
               </>
             )}
           </button>
         </form>
 
-        {/* Development Helper Box */}
-        <div className="bg-saffron/5 border border-saffron/20 rounded-lg p-4 space-y-2">
-          <p className="text-xs font-bold text-saffron font-marathiHeading uppercase tracking-wider">
-            💡 विकासक सूचना (Dev Hint):
-          </p>
-          <p className="text-xs text-foreground/80">
-            स्थानिक चाचणी दरम्यान, ओटीपी कोड <strong>सर्व्हरच्या कन्सोल लॉगमधे</strong> (Next.js server logs) प्रिंट होतो. कृपया तेथून तो कोड कॉपी करून येथे प्रविष्ट करा.
-          </p>
+        <div className="text-center pt-2 border-t border-[var(--dp-rule)]/40 text-xs font-marathi">
+          <Link
+            href="/auth/signin"
+            className="inline-flex items-center gap-1.5 text-[var(--dp-gold)] font-semibold hover:underline min-h-[44px]"
+          >
+            <ArrowLeft size={13} />
+            <span>लॉगिन पानावर परत जा</span>
+          </Link>
         </div>
-
-        {/* Navigation back */}
-        <div className="text-center pt-4 border-t border-saffron/10">
-          <p className="text-xs text-muted-foreground">
-            परत जायचे आहे?{' '}
-            <Link href="/auth/signin" className="font-bold text-saffron hover:underline inline-flex items-center gap-0.5">
-              लॉगिन पानावर जा <ArrowRight className="w-3 h-3" />
-            </Link>
-          </p>
-        </div>
-
       </div>
     </div>
   );
@@ -174,11 +176,13 @@ function VerifyEmailForm() {
 
 export default function VerifyEmailPage() {
   return (
-    <React.Suspense fallback={
-      <div className="min-h-[80vh] flex items-center justify-center bg-cream/30 px-4 py-12 dark:bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-saffron" />
-      </div>
-    }>
+    <React.Suspense
+      fallback={
+        <div className="vitthalaya-shell min-h-screen flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--dp-gold)]" />
+        </div>
+      }
+    >
       <VerifyEmailForm />
     </React.Suspense>
   );

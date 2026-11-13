@@ -1,10 +1,13 @@
 import { Suspense } from 'react';
-import { Trophy, Users, GitPullRequest, BookOpen } from 'lucide-react';
+import Link from 'next/link';
+import { Trophy, Users, GitPullRequest, BookOpen, ChevronRight } from 'lucide-react';
 import LeaderboardClient from './leaderboard-client';
+import '@/app/homepage.css';
 
 export const metadata = {
-  title: 'योगदानकर्ते - डिजिटल पंढरपूर',
-  description: 'डिजिटल पंढरपूर मधील सर्वोच्च योगदानकर्ते — संत साहित्य जतन करण्यात मदत करणारे समर्पित वापरकर्ते',
+  title: 'योगदानकर्ते व साधक लीडरबोर्ड | डिजिटल पंढरपूर',
+  description:
+    'डिजिटल पंढरपूर मधील सर्वोच्च योगदानकर्ते — संत साहित्य जतन व शुद्धीकरण करणारे समर्पित वारकरी साधक.',
   openGraph: {
     title: 'योगदानकर्ते लीडरबोर्ड',
     description: 'संत साहित्य जतन करण्यात मदत करणारे आमचे सर्वोच्च योगदानकर्ते',
@@ -14,38 +17,83 @@ export const metadata = {
 
 export default async function LeaderboardPage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <header className="mb-8">
-        <h1 className="text-2xl font-marathiHeading text-maroon mb-2 flex items-center gap-2">
-          <Trophy className="w-6 h-6 text-saffron" />
-          योगदानकर्ते लीडरबोर्ड
-        </h1>
-        <p className="text-muted-foreground">
-          सर्वोच्च गुण मिळवलेले योगदानकर्ते. दुरुस्त्या सुचवा, आवृत्त्या तयार करा, साहित्य जतन करा.
-        </p>
-      </header>
+    <div className="vitthalaya-shell min-h-screen py-10">
+      <div className="vitthalaya-container max-w-4xl">
+        {/* Breadcrumb Navigation */}
+        <nav className="mb-6" aria-label="ब्रेडक्रंब">
+          <ol className="flex items-center gap-2 text-xs font-marathi text-[var(--dp-muted)]">
+            <li>
+              <Link href="/" className="hover:text-[var(--dp-gold)] transition-colors">
+                मुख्यपृष्ठ
+              </Link>
+            </li>
+            <li aria-hidden="true">
+              <ChevronRight size={12} />
+            </li>
+            <li>
+              <Link href="/community" className="hover:text-[var(--dp-gold)] transition-colors">
+                समुदाय
+              </Link>
+            </li>
+            <li aria-hidden="true">
+              <ChevronRight size={12} />
+            </li>
+            <li className="text-[var(--dp-ink)] font-medium">योगदानकर्ते लीडरबोर्ड</li>
+          </ol>
+        </nav>
 
-      {/* Stats overview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={<Users />} label="एकूण योगदानकर्ते" value="—" />
-        <StatCard icon={<GitPullRequest />} label="दुरुस्त्या" value="—" />
-        <StatCard icon={<BookOpen />} label="आवृत्त्या" value="—" />
-        <StatCard icon={<Trophy />} label="सर्वोच्च गुण" value="—" />
+        {/* Header */}
+        <header className="mb-8">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[var(--dp-ground-well)] border border-[var(--dp-rule)] text-[var(--dp-gold)] text-xs font-marathi rounded-full mb-3">
+            <Trophy size={12} />
+            साहित्य सेवा गौरव
+          </span>
+          <h1 className="vitthalaya-display text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
+            योगदानकर्ते साधक गौरव फलक
+          </h1>
+          <p className="text-xs sm:text-sm font-marathi text-[var(--dp-muted)]">
+            संत साहित्याचे संपादन, शुद्धीकरण, हस्तलिखित तुलना व ऑडिओ संकलनात अग्रगण्य योगदान देणारे साधक.
+          </p>
+        </header>
+
+        {/* Stats overview */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <StatCard icon={<Users size={18} />} label="सक्रिय साधक" value="समुदाय" />
+          <StatCard icon={<GitPullRequest size={18} />} label="शुद्धीकरण दुरुस्त्या" value="प्रमाणित" />
+          <StatCard icon={<BookOpen size={18} />} label="साहित्य आवृत्त्या" value="अभिलेखागार" />
+          <StatCard icon={<Trophy size={18} />} label="साधक सन्मान" value="ज्ञानसेवा" />
+        </div>
+
+        <Suspense
+          fallback={
+            <div className="text-center py-16 text-[var(--dp-muted)] font-marathi">
+              माहिती लोड होत आहे...
+            </div>
+          }
+        >
+          <LeaderboardClient />
+        </Suspense>
       </div>
-
-      <Suspense fallback={<div className="text-center py-12 text-muted-foreground">लोड होत आहे...</div>}>
-        <LeaderboardClient />
-      </Suspense>
     </div>
   );
 }
 
-function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function StatCard({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
   return (
-    <div className="bg-card rounded-lg border border-saffron/10 p-4 text-center">
-      <div className="w-8 h-8 mx-auto mb-2 text-saffron">{icon}</div>
-      <div className="text-2xl font-bold text-maroon">{value}</div>
-      <div className="text-xs text-muted-foreground mt-1">{label}</div>
+    <div className="vitthalaya-card rounded-xl border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] p-4 text-center">
+      <div className="w-8 h-8 mx-auto mb-2 text-[var(--dp-gold)] flex items-center justify-center">
+        {icon}
+      </div>
+      <div className="text-lg font-bold font-marathi text-[var(--dp-ink)]">{value}</div>
+      <div className="text-[11px] font-marathi text-[var(--dp-muted)] mt-0.5">{label}</div>
     </div>
   );
 }

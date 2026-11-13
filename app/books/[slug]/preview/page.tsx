@@ -2,7 +2,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '../../../../src/db/client';
 import { BookViewer3D } from '../../../../components/3d/book-viewer';
-import { BookOpen, ArrowLeft, Sparkles } from 'lucide-react';
+import { BookOpen, ArrowLeft, Sparkles, ChevronRight } from 'lucide-react';
+import '@/app/homepage.css';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -53,9 +54,9 @@ export default async function BookPreviewPage({ params }: Props) {
   const coverColor = coverPalette[book.bookType] ?? '#6B1E1E';
 
   return (
-    <div className="min-h-screen bg-[#FFF8EC]">
+    <div className="vitthalaya-shell min-h-screen">
       {/* 3D Viewer Hero */}
-      <div className="h-[55vh] min-h-[420px] bg-gradient-to-b from-[#F2E8D8] to-[#FFF8EC]">
+      <div className="h-[52vh] min-h-[420px] bg-gradient-to-b from-[var(--dp-ground-deep)] via-[var(--dp-ground-well)] to-[var(--dp-ground)] border-b border-[var(--dp-rule)] relative">
         <BookViewer3D
           titleMarathi={book.titleMarathi}
           titleEnglish={book.titleEnglish ?? undefined}
@@ -64,45 +65,55 @@ export default async function BookPreviewPage({ params }: Props) {
         />
       </div>
 
-      {/* Details Bar */}
-      <div className="bg-white border-b border-[#E6D7C3] sticky top-0 z-20 shadow-xs">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      {/* Details Sticky Navigation Bar */}
+      <div className="bg-[var(--dp-ground-well)]/95 backdrop-blur-md border-b border-[var(--dp-rule)] sticky top-0 z-20 shadow-md">
+        <div className="vitthalaya-container max-w-5xl py-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link
               href={`/books/${slug}`}
-              className="text-[#6B1E1E] hover:text-[#FF7A1A] transition-colors p-1"
-              aria-label="Back to book details"
+              className="text-[var(--dp-gold)] hover:text-[var(--dp-ink)] transition-colors p-2 rounded-lg border border-[var(--dp-rule)] bg-[var(--dp-ground-elevated)] min-h-[44px] min-w-[44px] inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dp-gold)]"
+              aria-label="पुस्तकाच्या माहिती पानावर परत जा"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="text-xl font-bold font-marathi text-[#6B1E1E]">{book.titleMarathi}</h1>
-              {book.titleEnglish && <p className="text-xs text-gray-500">{book.titleEnglish}</p>}
+              <h1 className="text-lg sm:text-xl font-bold font-marathi text-[var(--dp-gold)] truncate max-w-md">
+                {book.titleMarathi}
+              </h1>
+              {book.titleEnglish && (
+                <p className="text-xs text-[var(--dp-muted)] truncate max-w-md">
+                  {book.titleEnglish}
+                </p>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs px-2.5 py-1 bg-amber-100 text-amber-900 rounded-full font-medium">
-              पूर्वावलोकन आवृत्ती (Sample Preview)
+
+          <div className="flex items-center gap-2.5">
+            <span className="text-xs px-3 py-1.5 bg-[var(--dp-ground-elevated)] text-[var(--dp-gold)] border border-[var(--dp-rule)] rounded-full font-marathi">
+              पूर्वावलोकन आवृत्ती
             </span>
             <Link
               href={`/books/${slug}`}
-              className="px-4 py-2 bg-[#FF7A1A] text-white rounded-lg hover:bg-[#E66A00] text-sm font-semibold transition-colors shadow-xs"
+              className="px-4 py-2 bg-[var(--dp-gold)] text-[#0d0906] rounded-lg hover:bg-[var(--dp-gold-celestial)] text-xs sm:text-sm font-semibold font-marathi transition-colors shadow-sm inline-flex items-center gap-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dp-gold)]"
             >
-              खरेदी करा / प्रत मिळवा →
+              <span>प्रत मिळवा</span>
+              <ChevronRight size={14} />
             </Link>
           </div>
         </div>
       </div>
 
       {/* Book Info + Real Pages Preview */}
-      <div className="max-w-5xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="vitthalaya-container max-w-5xl py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between border-b border-[#E6D7C3] pb-3">
+          <div className="flex items-center justify-between border-b border-[var(--dp-rule)] pb-3">
             <div className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-[#FF7A1A]" />
-              <h2 className="text-lg font-bold font-marathi text-[#6B1E1E]">रचना व पृष्ठ पूर्वावलोकन</h2>
+              <BookOpen className="w-5 h-5 text-[var(--dp-gold)]" />
+              <h2 className="text-lg font-bold font-marathi text-[var(--dp-gold)]">
+                रचना व पृष्ठ पूर्वावलोकन
+              </h2>
             </div>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-[var(--dp-muted)] font-marathi">
               एकूण {book.totalCompositions ?? book.compositions.length} पैकी निवडक रचना
             </span>
           </div>
@@ -110,28 +121,41 @@ export default async function BookPreviewPage({ params }: Props) {
           {/* Book Content Pages */}
           <div className="space-y-6">
             {/* Table of contents page */}
-            <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#E6D7C3] relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF7A1A]/5 rounded-bl-full pointer-events-none" />
-              <div className="text-center mb-6 border-b border-amber-100 pb-4">
-                <span className="text-xs font-semibold uppercase tracking-wider text-amber-800">।। श्री गणेशाय नमः ।।</span>
-                <h3 className="text-2xl font-bold font-marathi text-[#6B1E1E] mt-1">{book.titleMarathi}</h3>
-                <p className="text-xs text-gray-500 mt-1">अनुक्रमणिका व मुख्य विभाग</p>
+            <div className="vitthalaya-card rounded-2xl p-6 sm:p-8 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] relative overflow-hidden">
+              <div className="text-center mb-6 border-b border-[var(--dp-rule)] pb-4">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--dp-gold)]">
+                  ।। श्री गणेशाय नमः ।।
+                </span>
+                <h3 className="text-xl sm:text-2xl font-bold font-marathi text-[var(--dp-ink)] mt-1">
+                  {book.titleMarathi}
+                </h3>
+                <p className="text-xs text-[var(--dp-muted)] font-marathi mt-1">
+                  अनुक्रमणिका व मुख्य विभाग
+                </p>
               </div>
 
               <div className="space-y-3">
                 {book.compositions.map((bc, idx) => (
                   <div
                     key={bc.id}
-                    className="flex items-baseline justify-between text-sm py-1.5 border-b border-dashed border-gray-100 last:border-0"
+                    className="flex items-baseline justify-between text-sm py-2 border-b border-[var(--dp-rule)]/40 last:border-0"
                   >
                     <div className="flex items-baseline gap-2">
-                      <span className="text-xs font-semibold text-amber-800 w-6">{idx + 1}.</span>
-                      <span className="font-marathi text-gray-800 font-medium">{bc.composition.titleMarathi}</span>
+                      <span className="text-xs font-semibold text-[var(--dp-gold)] w-6 font-marathi">
+                        {idx + 1}.
+                      </span>
+                      <span className="font-marathi text-[var(--dp-ink)] font-medium">
+                        {bc.composition.titleMarathi}
+                      </span>
                       {bc.composition.saint && (
-                        <span className="text-xs text-gray-400 font-marathi">({bc.composition.saint.nameMarathi})</span>
+                        <span className="text-xs text-[var(--dp-muted)] font-marathi">
+                          ({bc.composition.saint.nameMarathi})
+                        </span>
                       )}
                     </div>
-                    <span className="text-xs text-gray-400 font-mono">पृष्ठ {idx * 2 + 1}</span>
+                    <span className="text-xs text-[var(--dp-muted)] font-mono">
+                      पृष्ठ {idx * 2 + 1}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -141,38 +165,40 @@ export default async function BookPreviewPage({ params }: Props) {
             {book.compositions.slice(0, 4).map((bc, idx) => (
               <article
                 key={bc.id}
-                className="bg-white rounded-2xl p-8 shadow-sm border border-[#E6D7C3] space-y-4 relative"
+                className="vitthalaya-card rounded-2xl p-6 sm:p-8 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] space-y-4 relative"
               >
-                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                <div className="flex items-center justify-between border-b border-[var(--dp-rule)] pb-3">
                   <div>
-                    <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-amber-800">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] text-[var(--dp-gold)] font-marathi">
                       रचना क्रमांक {idx + 1}
                     </span>
-                    <h4 className="text-xl font-bold font-marathi text-[#6B1E1E] mt-1">
+                    <h4 className="text-lg sm:text-xl font-bold font-marathi text-[var(--dp-ink)] mt-1.5">
                       {bc.composition.titleMarathi}
                     </h4>
                   </div>
                   {bc.composition.saint && (
-                    <span className="text-xs px-2.5 py-1 bg-[#FF7A1A]/10 text-[#FF7A1A] rounded-full font-medium font-marathi">
+                    <span className="text-xs px-2.5 py-1 bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] text-[var(--dp-gold)] rounded-full font-medium font-marathi">
                       संत {bc.composition.saint.nameMarathi}
                     </span>
                   )}
                 </div>
 
                 {/* Verses body */}
-                <div className="py-2 text-gray-800 font-marathi text-base leading-relaxed whitespace-pre-line bg-[#FFFDF9] p-4 rounded-xl border border-amber-50">
+                <div className="py-2 text-[var(--dp-ink)] font-marathi text-base sm:text-lg leading-relaxed whitespace-pre-line bg-[var(--dp-ground-elevated)] p-4 sm:p-6 rounded-xl border border-[var(--dp-rule)]">
                   {bc.composition.verses || 'रचना उपलब्ध आहे.'}
                 </div>
 
                 {/* Meaning if available */}
                 {bc.composition.meaningMarathi && (
-                  <div className="bg-amber-50/50 rounded-xl p-4 border border-amber-100/60 text-xs text-gray-700 leading-relaxed">
-                    <span className="font-semibold text-amber-900 block mb-1">भावार्थ (Meaning):</span>
+                  <div className="bg-[var(--dp-ground-deep)]/80 rounded-xl p-4 border border-[var(--dp-rule)] text-xs text-[var(--dp-muted)] font-marathi leading-relaxed">
+                    <span className="font-semibold text-[var(--dp-gold)] block mb-1">
+                      भावार्थ (Meaning):
+                    </span>
                     {bc.composition.meaningMarathi}
                   </div>
                 )}
 
-                <div className="flex justify-between items-center text-[11px] text-gray-400 pt-2 border-t border-gray-50">
+                <div className="flex justify-between items-center text-[11px] text-[var(--dp-muted)] pt-2 border-t border-[var(--dp-rule)]/40 font-marathi">
                   <span>Digital Pandharpur Devotional Archive</span>
                   <span className="font-mono">पृष्ठ {idx * 2 + 3}</span>
                 </div>
@@ -180,16 +206,18 @@ export default async function BookPreviewPage({ params }: Props) {
             ))}
           </div>
 
-          <div className="p-6 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-200/60 flex items-center justify-between">
+          <div className="p-6 bg-[var(--dp-ground-elevated)] rounded-2xl border border-[var(--dp-rule)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h4 className="font-bold text-[#6B1E1E] font-marathi text-base">संपूर्ण ग्रंथ वाचनासाठी उपलब्ध</h4>
-              <p className="text-xs text-gray-600 mt-0.5">
+              <h4 className="font-bold text-[var(--dp-gold)] font-marathi text-base">
+                संपूर्ण ग्रंथ वाचनासाठी उपलब्ध
+              </h4>
+              <p className="text-xs text-[var(--dp-muted)] font-marathi mt-1">
                 या ग्रंथातील सर्व {book.totalCompositions ?? book.compositions.length} रचना उच्च दर्जाच्या छपाईत मिळवा.
               </p>
             </div>
             <Link
               href={`/books/${slug}`}
-              className="px-4 py-2 bg-[#6B1E1E] text-white rounded-lg hover:bg-[#521717] text-xs font-semibold transition-colors shrink-0"
+              className="px-5 py-2.5 bg-[var(--dp-gold)] text-[#0d0906] rounded-lg hover:bg-[var(--dp-gold-celestial)] text-xs font-semibold font-marathi transition-colors shrink-0 min-h-[44px] inline-flex items-center justify-center"
             >
               पूर्ण ग्रंथ पहा
             </Link>
@@ -197,9 +225,9 @@ export default async function BookPreviewPage({ params }: Props) {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-4 text-sm">
-          <div className="bg-white rounded-2xl shadow-sm p-6 border border-[#E6D7C3] space-y-3">
-            <h3 className="font-bold font-marathi text-[#6B1E1E] text-base border-b border-gray-100 pb-2">
+        <aside className="space-y-4 text-sm">
+          <div className="vitthalaya-card rounded-2xl p-6 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] space-y-3">
+            <h3 className="font-bold font-marathi text-[var(--dp-gold)] text-base border-b border-[var(--dp-rule)] pb-2">
               ग्रंथ माहिती व तपशील
             </h3>
             <Row label="एकूण रचना" value={`${book.totalCompositions ?? book.compositions.length}`} />
@@ -209,16 +237,16 @@ export default async function BookPreviewPage({ params }: Props) {
             {book.creator && <Row label="संकलक" value={book.creator.name ?? 'संपादकीय मंडळ'} />}
           </div>
 
-          <div className="bg-amber-50 rounded-2xl p-5 border border-amber-200/50 space-y-2">
-            <div className="flex items-center gap-1.5 text-amber-900 font-semibold text-xs">
-              <Sparkles className="w-4 h-4 text-[#FF7A1A]" />
+          <div className="vitthalaya-card rounded-2xl p-5 border border-[var(--dp-rule)] bg-[var(--dp-ground-elevated)] space-y-2">
+            <div className="flex items-center gap-1.5 text-[var(--dp-gold)] font-semibold text-xs font-marathi">
+              <Sparkles className="w-4 h-4" />
               <span>३डी ग्रंथ अनुभव</span>
             </div>
-            <p className="text-xs text-gray-600 leading-relaxed">
+            <p className="text-xs text-[var(--dp-muted)] font-marathi leading-relaxed">
               वरील ३डी ग्रंथाला माऊस किंवा बोटाने फिरवून सर्व बाजूने पाहू शकता. मुखपृष्ठ, पृष्ठभाग आणि कडांचे सूक्ष्म तपशील तपासा.
             </p>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   );
@@ -226,9 +254,9 @@ export default async function BookPreviewPage({ params }: Props) {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0">
-      <span className="text-gray-500 text-xs">{label}</span>
-      <span className="font-semibold text-gray-800 text-xs font-marathi">{value}</span>
+    <div className="flex justify-between items-center py-2 border-b border-[var(--dp-rule)]/40 last:border-0 text-xs font-marathi">
+      <span className="text-[var(--dp-muted)]">{label}</span>
+      <span className="font-semibold text-[var(--dp-ink)]">{value}</span>
     </div>
   );
 }

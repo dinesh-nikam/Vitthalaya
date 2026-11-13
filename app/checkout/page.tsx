@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { getCart, getCartSummary, clearCart } from '../../src/lib/orders/cart';
 import { calculateTax } from '../../src/lib/orders/pricing';
 import { PriceBreakdown } from '@/components/price-breakdown';
+import { ChevronRight, Lock, ShieldCheck, Loader2 } from 'lucide-react';
+import '@/app/homepage.css';
 
 // Razorpay global type
 declare global {
@@ -25,7 +27,13 @@ interface CheckoutForm {
 }
 
 const INITIAL_FORM: CheckoutForm = {
-  fullName: '', phone: '', line1: '', line2: '', city: '', state: 'Maharashtra', postalCode: '',
+  fullName: '',
+  phone: '',
+  line1: '',
+  line2: '',
+  city: '',
+  state: 'Maharashtra',
+  postalCode: '',
 };
 
 export default function CheckoutPage() {
@@ -50,10 +58,19 @@ export default function CheckoutPage() {
 
   if (cart.items.length === 0) {
     return (
-      <div className="min-h-screen bg-cream-50 py-8">
-        <div className="max-w-xl mx-auto px-4 text-center">
-          <p className="text-gray-500 mb-4">टोपली रिकामी आहे</p>
-          <Link href="/books" className="text-saffron hover:underline">पुस्तके पहा</Link>
+      <div className="vitthalaya-shell min-h-screen py-10">
+        <div className="vitthalaya-container max-w-xl text-center">
+          <div className="vitthalaya-card rounded-2xl p-8 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] shadow-lg space-y-4">
+            <p className="text-sm font-marathi text-[var(--dp-muted)]">
+              आपली खरेदीची टोपली रिकामी आहे.
+            </p>
+            <Link
+              href="/books"
+              className="inline-flex items-center gap-1.5 px-6 py-2.5 bg-[var(--dp-gold)] text-[#0d0906] font-semibold text-xs font-marathi rounded-lg hover:bg-[var(--dp-gold-celestial)] transition-colors min-h-[44px]"
+            >
+              ग्रंथ भांडार पहा
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -157,80 +174,190 @@ export default function CheckoutPage() {
 
       const rzp = new (window as any).Razorpay(options);
       rzp.open();
-
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
       setLoading(false);
     }
   }
 
-  const inputClass = 'w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-saffron focus:border-transparent outline-none';
-  const labelClass = 'block text-sm font-medium text-gray-700 mb-1';
+  const inputClass =
+    'w-full rounded-lg border border-[var(--dp-rule)] bg-[var(--dp-ground-elevated)] px-4 py-2.5 text-xs sm:text-sm font-marathi text-[var(--dp-ink)] placeholder-[var(--dp-muted)] focus:border-[var(--dp-gold)] focus:ring-2 focus:ring-[var(--dp-gold)]/20 outline-none transition-colors min-h-[44px]';
+  const labelClass =
+    'block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1.5';
 
   return (
-    <div className="min-h-screen bg-cream-50 py-8">
-      <div className="max-w-2xl mx-auto px-4 space-y-6">
-        <h1 className="text-3xl font-bold text-maroon-800">चेकआउट</h1>
+    <div className="vitthalaya-shell min-h-screen py-10">
+      <div className="vitthalaya-container max-w-2xl space-y-6">
+        {/* Breadcrumb Navigation */}
+        <nav className="mb-2" aria-label="ब्रेडक्रंब">
+          <ol className="flex items-center gap-2 text-xs font-marathi text-[var(--dp-muted)]">
+            <li>
+              <Link href="/" className="hover:text-[var(--dp-gold)] transition-colors">
+                मुख्यपृष्ठ
+              </Link>
+            </li>
+            <li aria-hidden="true">
+              <ChevronRight size={12} />
+            </li>
+            <li>
+              <Link href="/cart" className="hover:text-[var(--dp-gold)] transition-colors">
+                टोपली
+              </Link>
+            </li>
+            <li aria-hidden="true">
+              <ChevronRight size={12} />
+            </li>
+            <li className="text-[var(--dp-ink)] font-medium">चेकआउट</li>
+          </ol>
+        </nav>
+
+        {/* Header */}
+        <header className="flex items-center justify-between">
+          <div>
+            <h1 className="vitthalaya-display text-2xl sm:text-3xl font-bold">
+              सुरक्षित चेकआउट
+            </h1>
+            <p className="text-xs font-marathi text-[var(--dp-muted)] mt-0.5">
+              शिपिंग पत्ता व सुरक्षित देयक पूर्तता
+            </p>
+          </div>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[var(--dp-ground-well)] border border-[var(--dp-rule)] text-[var(--dp-gold)] text-xs font-marathi rounded-full">
+            <Lock size={12} />
+            सुरक्षित व्यवहार
+          </span>
+        </header>
 
         {/* Order Summary */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="font-semibold text-maroon-800 mb-3">ऑर्डर सारांश</h2>
-          {cart.items.map((item) => (
-            <div key={item.editionId} className="flex justify-between text-sm py-2 border-b border-gray-50">
-              <span>{item.titleMarathi} × {item.quantity}</span>
-              <span>₹{item.unitPrice * item.quantity}</span>
-            </div>
-          ))}
-          <div className="mt-3 pt-3 border-t border-gray-50">
-            <PriceBreakdown subtotal={subtotal} shippingCost={shippingCost} tax={tax} total={total} />
+        <div className="vitthalaya-card rounded-2xl p-6 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] shadow-lg space-y-3">
+          <h2 className="vitthalaya-display text-base font-bold text-[var(--dp-gold)] pb-2 border-b border-[var(--dp-rule)]/50">
+            ऑर्डर सारांश
+          </h2>
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+            {cart.items.map((item) => (
+              <div
+                key={item.editionId}
+                className="flex justify-between items-center text-xs font-marathi py-1.5 border-b border-[var(--dp-rule)]/30 last:border-0"
+              >
+                <span className="text-[var(--dp-ink)] truncate max-w-[280px]">
+                  {item.titleMarathi} × {item.quantity}
+                </span>
+                <span className="font-semibold text-[var(--dp-ink)]">
+                  ₹{(item.unitPrice * item.quantity).toLocaleString('en-IN')}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="pt-3 border-t border-[var(--dp-rule)]/50">
+            <PriceBreakdown
+              subtotal={subtotal}
+              shippingCost={shippingCost}
+              tax={tax}
+              total={total}
+            />
           </div>
         </div>
 
         {/* Shipping Address */}
-        <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
-          <h2 className="font-semibold text-maroon-800">शिपिंग पत्ता</h2>
+        <div className="vitthalaya-card rounded-2xl p-6 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] shadow-lg space-y-4">
+          <h2 className="vitthalaya-display text-base font-bold text-[var(--dp-gold)] pb-2 border-b border-[var(--dp-rule)]/50">
+            शिपिंग पत्ता (वितरण तपशील)
+          </h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <label className={labelClass}>पूर्ण नाव</label>
-              <input className={inputClass} value={form.fullName} onChange={(e) => updateField('fullName', e.target.value)} required />
+              <label className={labelClass}>पूर्ण नाव *</label>
+              <input
+                className={inputClass}
+                value={form.fullName}
+                onChange={(e) => updateField('fullName', e.target.value)}
+                placeholder="उदा. राहुल पांडुरंग कदम"
+                required
+              />
             </div>
             <div className="col-span-2 sm:col-span-1">
-              <label className={labelClass}>मोबाईल नंबर</label>
-              <input className={inputClass} value={form.phone} onChange={(e) => updateField('phone', e.target.value)} required />
+              <label className={labelClass}>मोबाईल नंबर *</label>
+              <input
+                className={inputClass}
+                value={form.phone}
+                onChange={(e) => updateField('phone', e.target.value)}
+                placeholder="उदा. 98XXXXXXXX"
+                required
+              />
+            </div>
+            <div className="col-span-2 sm:col-span-1">
+              <label className={labelClass}>पिन कोड *</label>
+              <input
+                className={inputClass}
+                value={form.postalCode}
+                onChange={(e) => updateField('postalCode', e.target.value)}
+                placeholder="उदा. 413304"
+                required
+              />
             </div>
             <div className="col-span-2">
-              <label className={labelClass}>पत्ता ओळ 1</label>
-              <input className={inputClass} value={form.line1} onChange={(e) => updateField('line1', e.target.value)} required />
+              <label className={labelClass}>पत्ता ओळ १ *</label>
+              <input
+                className={inputClass}
+                value={form.line1}
+                onChange={(e) => updateField('line1', e.target.value)}
+                placeholder="घर क्र., इमारत किंवा गल्लीचे नाव"
+                required
+              />
             </div>
             <div className="col-span-2">
-              <label className={labelClass}>पत्ता ओळ 2</label>
-              <input className={inputClass} value={form.line2} onChange={(e) => updateField('line2', e.target.value)} />
+              <label className={labelClass}>पत्ता ओळ २ (पर्यायी)</label>
+              <input
+                className={inputClass}
+                value={form.line2}
+                onChange={(e) => updateField('line2', e.target.value)}
+                placeholder="जवळची खूण (Landmark)"
+              />
             </div>
             <div>
-              <label className={labelClass}>शहर</label>
-              <input className={inputClass} value={form.city} onChange={(e) => updateField('city', e.target.value)} required />
+              <label className={labelClass}>शहर / गाव *</label>
+              <input
+                className={inputClass}
+                value={form.city}
+                onChange={(e) => updateField('city', e.target.value)}
+                placeholder="उदा. पंढरपूर"
+                required
+              />
             </div>
             <div>
-              <label className={labelClass}>राज्य</label>
-              <input className={inputClass} value={form.state} onChange={(e) => updateField('state', e.target.value)} required />
-            </div>
-            <div>
-              <label className={labelClass}>पिन कोड</label>
-              <input className={inputClass} value={form.postalCode} onChange={(e) => updateField('postalCode', e.target.value)} required />
+              <label className={labelClass}>राज्य *</label>
+              <input
+                className={inputClass}
+                value={form.state}
+                onChange={(e) => updateField('state', e.target.value)}
+                required
+              />
             </div>
           </div>
         </div>
 
         {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>
+          <div className="p-4 bg-red-950/40 border border-red-500/30 rounded-xl text-red-300 text-xs font-marathi">
+            {error}
+          </div>
         )}
 
+        {/* Submit Button */}
         <button
+          type="button"
           onClick={handlePlaceOrder}
-          disabled={loading || !form.fullName || !form.phone}
-          className="w-full py-3 bg-saffron text-white rounded-lg hover:bg-saffron-600 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={loading || !form.fullName || !form.phone || !form.line1 || !form.city || !form.postalCode}
+          className="w-full py-3.5 bg-[var(--dp-gold)] text-[#0d0906] font-semibold text-sm font-marathi rounded-lg hover:bg-[var(--dp-gold-celestial)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px] flex items-center justify-center gap-2 shadow-sm"
         >
-          {loading ? 'प्रक्रिया होत आहे...' : `₹${total.toLocaleString('en-IN')} भरा`}
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>प्रक्रिया सुरू आहे...</span>
+            </>
+          ) : (
+            <>
+              <ShieldCheck size={16} />
+              <span>₹{total.toLocaleString('en-IN')} सुरक्षित भरा व ऑर्डर करा</span>
+            </>
+          )}
         </button>
       </div>
     </div>

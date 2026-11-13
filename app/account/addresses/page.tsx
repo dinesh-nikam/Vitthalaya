@@ -2,7 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MapPin, Plus, Trash2, Home, Briefcase, Landmark, ShieldAlert, ArrowLeft, Check } from 'lucide-react';
+import {
+  MapPin,
+  Plus,
+  Trash2,
+  Home,
+  Briefcase,
+  Landmark,
+  ShieldAlert,
+  ArrowLeft,
+  Check,
+  ChevronRight,
+  Save,
+} from 'lucide-react';
+import '@/app/homepage.css';
 
 interface Address {
   id: string;
@@ -58,7 +71,7 @@ export default function AddressesPage() {
     setError(null);
 
     if (!fullName || !phone || !line1 || !city || !state || !postalCode) {
-      setError('कृपया सर्व आवश्यक शेती भरा.');
+      setError('कृपया सर्व आवश्यक माहिती भरा.');
       setSubmitLoading(false);
       return;
     }
@@ -123,24 +136,50 @@ export default function AddressesPage() {
   const getLabelIcon = (lbl: string | null) => {
     switch (lbl?.toLowerCase()) {
       case 'home':
-        return <Home className="w-4 h-4 text-saffron" />;
+        return <Home className="w-3.5 h-3.5 text-[var(--dp-gold)]" />;
       case 'office':
-        return <Briefcase className="w-4 h-4 text-saffron" />;
+        return <Briefcase className="w-3.5 h-3.5 text-[var(--dp-gold)]" />;
       case 'temple':
-        return <Landmark className="w-4 h-4 text-saffron" />;
+        return <Landmark className="w-3.5 h-3.5 text-[var(--dp-gold)]" />;
       default:
-        return <MapPin className="w-4 h-4 text-saffron" />;
+        return <MapPin className="w-3.5 h-3.5 text-[var(--dp-gold)]" />;
     }
   };
 
+  const inputClass =
+    'w-full bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] rounded-xl px-4 py-2.5 text-xs sm:text-sm font-marathi text-[var(--dp-ink)] placeholder-[var(--dp-muted)] focus:border-[var(--dp-gold)] focus:ring-2 focus:ring-[var(--dp-gold)]/20 outline-none transition-colors min-h-[44px]';
+
   return (
-    <div className="min-h-screen bg-cream-50 py-8 px-4 sm:px-6">
-      <div className="max-w-3xl mx-auto space-y-6">
-        {/* Breadcrumb / Back button */}
-        <div className="flex items-center justify-between">
+    <div className="vitthalaya-shell min-h-screen py-10 px-4 sm:px-6">
+      <div className="vitthalaya-container max-w-3xl space-y-6">
+        {/* Breadcrumb Navigation */}
+        <nav aria-label="ब्रेडक्रंब" className="mb-2">
+          <ol className="flex items-center gap-2 text-xs font-marathi text-[var(--dp-muted)]">
+            <li>
+              <Link href="/" className="hover:text-[var(--dp-gold)] transition-colors">
+                मुख्यपृष्ठ
+              </Link>
+            </li>
+            <li aria-hidden="true">
+              <ChevronRight size={12} />
+            </li>
+            <li>
+              <Link href="/account" className="hover:text-[var(--dp-gold)] transition-colors">
+                माझे खाते
+              </Link>
+            </li>
+            <li aria-hidden="true">
+              <ChevronRight size={12} />
+            </li>
+            <li className="text-[var(--dp-ink)] font-medium">पत्ते व्यवस्थापन</li>
+          </ol>
+        </nav>
+
+        {/* Action Header */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <Link
             href="/account"
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-saffron transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-marathi text-[var(--dp-muted)] hover:text-[var(--dp-gold)] transition-colors min-h-[44px]"
           >
             <ArrowLeft className="w-4 h-4" /> खात्यावर परत जा
           </Link>
@@ -149,23 +188,29 @@ export default function AddressesPage() {
               setShowAddForm(!showAddForm);
               setError(null);
             }}
-            className="flex items-center gap-1.5 px-4 py-2 bg-saffron text-white rounded-xl text-sm font-semibold hover:bg-saffron/90 transition-all shadow-md active:scale-95"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[var(--dp-gold)] text-[#0d0906] rounded-xl text-xs sm:text-sm font-semibold font-marathi hover:bg-[var(--dp-gold-celestial)] transition-all shadow-md active:scale-95 min-h-[44px]"
           >
-            {showAddForm ? 'रद्द करा' : <><Plus className="w-4 h-4" /> नवीन पत्ता जोडा</>}
+            {showAddForm ? (
+              'रद्द करा'
+            ) : (
+              <>
+                <Plus className="w-4 h-4" /> नवीन पत्ता जोडा
+              </>
+            )}
           </button>
         </div>
 
         <header className="mb-4">
-          <h1 className="text-3xl font-marathiHeading font-bold text-maroon dark:text-saffron">
-            माझे पत्ते 🚩
+          <h1 className="vitthalaya-display text-2xl sm:text-3xl font-bold mb-1">
+            माझे वितरण पत्ते
           </h1>
-          <p className="text-muted-foreground text-sm">
-            पुस्तके आणि ग्रंथ मागवण्यासाठी तुमचे डिलिव्हरी पत्ते व्यवस्थापित करा.
+          <p className="text-xs sm:text-sm font-marathi text-[var(--dp-muted)]">
+            पुस्तके आणि ग्रंथ मागवण्यासाठी तुमचे डिलिव्हरी पत्ते सुरक्षित व्यवस्थापित करा.
           </p>
         </header>
 
         {error && (
-          <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-2xl flex items-center gap-3 text-red-700 dark:text-red-400 text-sm">
+          <div className="p-4 bg-red-950/40 border border-red-500/30 rounded-xl flex items-center gap-3 text-red-300 text-xs font-marathi">
             <ShieldAlert className="w-5 h-5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -175,16 +220,16 @@ export default function AddressesPage() {
         {showAddForm && (
           <form
             onSubmit={handleAddAddress}
-            className="bg-card border-2 border-saffron/20 p-6 rounded-2xl shadow-xl space-y-4 animate-slide-up"
+            className="vitthalaya-card border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] p-6 sm:p-8 rounded-2xl shadow-xl space-y-4"
           >
-            <h2 className="text-lg font-bold text-maroon dark:text-saffron border-b border-saffron/10 pb-2">
+            <h2 className="vitthalaya-display text-base font-bold text-[var(--dp-gold)] border-b border-[var(--dp-rule)]/50 pb-2">
               नवीन पत्ता माहिती
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold text-muted-foreground mb-1">
-                  पूर्ण नाव (अत्यावश्यक)
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1">
+                  पूर्ण नाव (अत्यावश्यक) *
                 </label>
                 <input
                   type="text"
@@ -192,13 +237,13 @@ export default function AddressesPage() {
                   placeholder="उदा. ज्ञानेश्वर पाटील"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-background border border-saffron/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-saffron focus:border-transparent outline-none text-foreground"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-1">
-                  मोबाईल नंबर (अत्यावश्यक)
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1">
+                  मोबाईल नंबर (अत्यावश्यक) *
                 </label>
                 <input
                   type="tel"
@@ -206,18 +251,18 @@ export default function AddressesPage() {
                   placeholder="उदा. ९८७६५४३२१०"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full bg-background border border-saffron/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-saffron focus:border-transparent outline-none text-foreground"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1">
                   पत्ता प्रकार (लेबल)
                 </label>
                 <select
                   value={label}
                   onChange={(e) => setLabel(e.target.value)}
-                  className="w-full bg-background border border-saffron/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-saffron focus:border-transparent outline-none text-foreground"
+                  className={inputClass}
                 >
                   <option value="Home">घर (Home)</option>
                   <option value="Office">कार्यालय (Office)</option>
@@ -227,8 +272,8 @@ export default function AddressesPage() {
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold text-muted-foreground mb-1">
-                  पत्ता ओळ १ (अत्यावश्यक)
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1">
+                  पत्ता ओळ १ (अत्यावश्यक) *
                 </label>
                 <input
                   type="text"
@@ -236,12 +281,12 @@ export default function AddressesPage() {
                   placeholder="उदा. ब्लॉक ३०२, विठ्ठल निवास"
                   value={line1}
                   onChange={(e) => setLine1(e.target.value)}
-                  className="w-full bg-background border border-saffron/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-saffron focus:border-transparent outline-none text-foreground"
+                  className={inputClass}
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-muted)] font-marathi mb-1">
                   पत्ता ओळ २ (पर्यायी)
                 </label>
                 <input
@@ -249,13 +294,13 @@ export default function AddressesPage() {
                   placeholder="उदा. देऊळ गल्ली, पंढरपूर"
                   value={line2}
                   onChange={(e) => setLine2(e.target.value)}
-                  className="w-full bg-background border border-saffron/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-saffron focus:border-transparent outline-none text-foreground"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-1">
-                  शहर (City)
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1">
+                  शहर (City) *
                 </label>
                 <input
                   type="text"
@@ -263,13 +308,13 @@ export default function AddressesPage() {
                   placeholder="उदा. सोलापूर"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full bg-background border border-saffron/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-saffron focus:border-transparent outline-none text-foreground"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-1">
-                  पिन कोड (Postal Code)
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1">
+                  पिन कोड (Postal Code) *
                 </label>
                 <input
                   type="text"
@@ -277,20 +322,20 @@ export default function AddressesPage() {
                   placeholder="उदा. ४१३३०४"
                   value={postalCode}
                   onChange={(e) => setPostalCode(e.target.value)}
-                  className="w-full bg-background border border-saffron/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-saffron focus:border-transparent outline-none text-foreground"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-1">
-                  राज्य (State)
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1">
+                  राज्य (State) *
                 </label>
                 <input
                   type="text"
                   required
                   value={state}
                   onChange={(e) => setStateName(e.target.value)}
-                  className="w-full bg-background border border-saffron/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-saffron focus:border-transparent outline-none text-foreground"
+                  className={inputClass}
                 />
               </div>
 
@@ -300,28 +345,32 @@ export default function AddressesPage() {
                   id="isDefault"
                   checked={isDefault}
                   onChange={(e) => setIsDefault(e.target.checked)}
-                  className="w-4 h-4 text-saffron border-saffron/30 rounded focus:ring-saffron"
+                  className="w-4 h-4 text-[var(--dp-gold)] border-[var(--dp-rule)] rounded bg-[var(--dp-ground-elevated)] focus:ring-[var(--dp-gold)]"
                 />
-                <label htmlFor="isDefault" className="text-xs font-semibold text-muted-foreground cursor-pointer">
+                <label
+                  htmlFor="isDefault"
+                  className="text-xs font-semibold text-[var(--dp-muted)] font-marathi cursor-pointer"
+                >
                   याला मुख्य पत्ता बनवा
                 </label>
               </div>
             </div>
 
-            <div className="border-t border-saffron/10 pt-4 flex justify-end gap-3">
+            <div className="border-t border-[var(--dp-rule)]/50 pt-4 flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
-                className="px-4 py-2.5 border border-saffron/20 text-muted-foreground rounded-xl text-sm font-semibold hover:bg-saffron/5"
+                className="px-4 py-2.5 border border-[var(--dp-rule)] text-[var(--dp-muted)] rounded-xl text-xs font-marathi hover:text-[var(--dp-ink)] min-h-[44px]"
               >
-                मागे
+                रद्द करा
               </button>
               <button
                 type="submit"
                 disabled={submitLoading}
-                className="px-5 py-2.5 bg-saffron text-white rounded-xl text-sm font-semibold hover:bg-saffron/90 transition-all shadow-md active:scale-95 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[var(--dp-gold)] text-[#0d0906] rounded-xl text-xs sm:text-sm font-semibold font-marathi hover:bg-[var(--dp-gold-celestial)] transition-all shadow-md active:scale-95 disabled:opacity-50 min-h-[44px]"
               >
-                {submitLoading ? 'जतन होत आहे...' : 'पत्ता जतन करा 💾'}
+                <Save size={14} />
+                <span>{submitLoading ? 'जतन होत आहे...' : 'पत्ता जतन करा'}</span>
               </button>
             </div>
           </form>
@@ -330,14 +379,16 @@ export default function AddressesPage() {
         {/* Address List */}
         {loading ? (
           <div className="py-12 flex justify-center">
-            <div className="w-8 h-8 border-4 border-saffron border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-3 border-[var(--dp-gold)] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : addresses.length === 0 ? (
-          <div className="bg-card border border-saffron/10 p-12 text-center rounded-2xl shadow-sm">
-            <p className="text-muted-foreground text-base">अजून कोणताही डिलिव्हरी पत्ता जतन केलेला नाही.</p>
+          <div className="vitthalaya-card border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] p-12 text-center rounded-2xl shadow-sm space-y-3">
+            <p className="text-xs sm:text-sm font-marathi text-[var(--dp-muted)]">
+              अजून कोणताही डिलिव्हरी पत्ता जतन केलेला नाही.
+            </p>
             <button
               onClick={() => setShowAddForm(true)}
-              className="mt-4 inline-flex items-center gap-1 px-4 py-2 bg-saffron/10 text-saffron border border-saffron/20 rounded-xl text-sm font-semibold hover:bg-saffron/20 transition-all"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[var(--dp-ground-elevated)] text-[var(--dp-gold)] border border-[var(--dp-rule)] rounded-xl text-xs font-marathi hover:bg-[var(--dp-gold)] hover:text-[#0d0906] transition-all min-h-[44px]"
             >
               <Plus className="w-4 h-4" /> नवीन पत्ता जोडा
             </button>
@@ -347,34 +398,45 @@ export default function AddressesPage() {
             {addresses.map((addr) => (
               <div
                 key={addr.id}
-                className="bg-card border border-saffron/10 p-5 rounded-2xl shadow-sm hover:border-saffron/30 transition-all flex justify-between items-start"
+                className="vitthalaya-card border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] p-5 rounded-2xl shadow-sm hover:border-[var(--dp-gold)] transition-all flex justify-between items-start gap-4"
               >
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-bold text-base text-foreground">{addr.fullName}</span>
-                    <span className="flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded bg-saffron/10 text-saffron uppercase border border-saffron/20">
+                    <span className="font-bold text-sm sm:text-base text-[var(--dp-ink)] font-marathi">
+                      {addr.fullName}
+                    </span>
+                    <span className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[var(--dp-ground-elevated)] text-[var(--dp-gold)] uppercase border border-[var(--dp-rule)] font-marathi">
                       {getLabelIcon(addr.label)}
-                      {addr.label === 'Home' ? 'घर' : addr.label === 'Office' ? 'ऑफिस' : addr.label === 'Temple' ? 'मंदिर' : addr.label || 'इतर'}
+                      {addr.label === 'Home'
+                        ? 'घर'
+                        : addr.label === 'Office'
+                        ? 'कार्यालय'
+                        : addr.label === 'Temple'
+                        ? 'मंदिर'
+                        : addr.label || 'इतर'}
                     </span>
                     {addr.isDefault && (
-                      <span className="flex items-center gap-0.5 text-[11px] font-bold px-2 py-0.5 rounded bg-green-500/10 text-green-600 border border-green-500/20">
+                      <span className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-950/40 text-emerald-300 border border-emerald-500/30 font-marathi">
                         <Check className="w-3 h-3" /> मुख्य पत्ता
                       </span>
                     )}
                   </div>
-                  <div className="text-sm text-foreground/80 space-y-0.5 leading-relaxed">
+                  <div className="text-xs sm:text-sm text-[var(--dp-muted)] font-marathi space-y-0.5 leading-relaxed">
                     <p>{addr.line1}</p>
                     {addr.line2 && <p>{addr.line2}</p>}
                     <p>
-                      {addr.city}, {addr.state} — <span className="font-mono font-medium">{addr.postalCode}</span>
+                      {addr.city}, {addr.state} —{' '}
+                      <span className="font-mono font-medium text-[var(--dp-ink)]">
+                        {addr.postalCode}
+                      </span>
                     </p>
-                    <p className="text-xs text-muted-foreground pt-1">संपर्क: {addr.phone}</p>
+                    <p className="text-xs text-[var(--dp-muted)] pt-1">संपर्क: {addr.phone}</p>
                   </div>
                 </div>
 
                 <button
                   onClick={() => handleDeleteAddress(addr.id)}
-                  className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-colors"
+                  className="p-2.5 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-xl transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0"
                   aria-label="पत्ता हटवा"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -387,4 +449,3 @@ export default function AddressesPage() {
     </div>
   );
 }
-

@@ -49,7 +49,7 @@ export default function SanctuaryPage() {
       {/* Bottom Information Footer */}
       <footer className="border-t border-[rgba(201,162,39,0.15)] bg-[#0d0906] px-6 py-4 text-center text-xs text-[#a89279] font-marathi">
         <p>
-          वारकरी संप्रदाय व भारतीय भक्ती साहित्यातील २१ प्रमाणित रचना • राग, ताल, स्वरसंगती व काव्य विवरण • सार्वजनिक वाङ्मय अभिलेखागार
+          वारकरी संप्रदाय व भारतीय भक्ती साहित्यातील २४ प्रमाणित रचना • राग, ताल, स्वरसंगती व काव्य विवरण • सार्वजनिक वाङ्मय अभिलेखागार
         </p>
       </footer>
     </main>
