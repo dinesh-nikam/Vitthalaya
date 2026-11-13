@@ -7,16 +7,16 @@
 
 export const SAINT_IMAGE_MAP: Record<string, string> = {
   // Major Pillars of the Varkari Tradition with verified authentic portraits
-  'dnyaneshwar-maharaj': '/images/saints/dnyaneshwar.jpg',
-  'dnyaneshwar': '/images/saints/dnyaneshwar.jpg',
+  'dnyaneshwar-maharaj': '/images/saints/sant-dnyaneshwar.jpg',
+  'dnyaneshwar': '/images/saints/sant-dnyaneshwar.jpg',
   'tukaram-maharaj': '/images/saints/sant-tukaram.jpg',
   'tukaram': '/images/saints/sant-tukaram.jpg',
   'pundalik': '/images/saints/panduranga-vitthal.jpg',
   'bhakta-pundalik': '/images/saints/panduranga-vitthal.jpg',
 
   // Revered Varkari Sants with authentic temple & sacred manuscript heritage imagery
-  'namdev-maharaj': '/images/realistic/ancient-manuscript.jpg',
-  'namdev': '/images/realistic/ancient-manuscript.jpg',
+  'namdev-maharaj': '/images/saints/sant-namdev.jpg',
+  'namdev': '/images/saints/sant-namdev.jpg',
   'eknath-maharaj': '/images/realistic/ancient-manuscript.jpg',
   'eknath': '/images/realistic/ancient-manuscript.jpg',
   'janabai': '/images/realistic/chandrabhaga-river.jpg',

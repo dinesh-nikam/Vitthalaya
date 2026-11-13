@@ -17,14 +17,14 @@ export const SAINT_SEALS: Record<string, SaintSealData> = {
     glyph: 'ज्ञा',
     mudra: 'ज्ञानोबा माउली',
     tradition: 'नाथ व वारकरी परंपरा',
-    authenticPortrait: '/images/saints/dnyaneshwar.jpg',
+    authenticPortrait: '/images/saints/sant-dnyaneshwar.jpg',
     accentBg: 'from-[#5C240E] to-[#2D1206]',
   },
   'dnyaneshwar': {
     glyph: 'ज्ञा',
     mudra: 'ज्ञानोबा माउली',
     tradition: 'नाथ व वारकरी परंपरा',
-    authenticPortrait: '/images/saints/dnyaneshwar.jpg',
+    authenticPortrait: '/images/saints/sant-dnyaneshwar.jpg',
     accentBg: 'from-[#5C240E] to-[#2D1206]',
   },
   'tukaram-maharaj': {
@@ -59,12 +59,14 @@ export const SAINT_SEALS: Record<string, SaintSealData> = {
     glyph: 'ना',
     mudra: 'नामा म्हणे',
     tradition: 'भागवत धर्म प्रचारक',
+    authenticPortrait: '/images/saints/sant-namdev.jpg',
     accentBg: 'from-[#5A2914] to-[#281107]',
   },
   'namdev': {
     glyph: 'ना',
     mudra: 'नामा म्हणे',
     tradition: 'भागवत धर्म प्रचारक',
+    authenticPortrait: '/images/saints/sant-namdev.jpg',
     accentBg: 'from-[#5A2914] to-[#281107]',
   },
   'eknath-maharaj': {
