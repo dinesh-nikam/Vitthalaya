@@ -95,6 +95,18 @@ const CATEGORY_TARGETS: CategoryTarget[] = [
   { slug: 'mankoji-bodhale', saintMarathi: 'संत माणकोजी बोधले', saintTranslit: 'Mankoji Bodhale' },
   { slug: 'sant-samarth-ramdash', saintMarathi: 'संत समर्थ रामदास', saintTranslit: 'Ramdas Maharaj' },
   { slug: 'shree-datta', saintMarathi: 'श्री दत्त', saintTranslit: 'Dattatreya' },
+  { slug: 'nilobaray', saintMarathi: 'संत निळोबाराय', saintTranslit: 'Nilobaray', type: 'abhang' },
+  { slug: 'savta-mali', saintMarathi: 'संत सावता माळी', saintTranslit: 'Savta Mali', type: 'abhang' },
+  { slug: 'goroba', saintMarathi: 'संत गोरोबा कुंभार', saintTranslit: 'Goroba', type: 'abhang' },
+  { slug: 'bahinabai', saintMarathi: 'संत बहिणाबाई', saintTranslit: 'Bahinabai', type: 'abhang' },
+  { slug: 'sant-sheikh-mohammed', saintMarathi: 'संत शेख महंमद', saintTranslit: 'Sheikh Mohammed', type: 'abhang' },
+  { slug: 'stotre', type: 'stotra' },
+  { slug: 'paalna', type: 'palana' },
+  { slug: 'bhawartha-ramayan', saintMarathi: 'संत एकनाथ महाराज', saintTranslit: 'Eknath Maharaj', type: 'ovi' },
+  { slug: 'nirmala', saintMarathi: 'संत निर्मला', saintTranslit: 'Nirmala', type: 'abhang' },
+  { slug: 'rukmini-swayamvar', saintMarathi: 'संत एकनाथ महाराज', saintTranslit: 'Eknath Maharaj', type: 'ovi' },
+  { slug: 'kanho-pathak', saintMarathi: 'संत कान्हो पाठक', saintTranslit: 'Kanho Pathak', type: 'abhang' },
+  { slug: 'jagmitra-naga', saintMarathi: 'संत जगमित्र नागा', saintTranslit: 'Jagmitra Naga', type: 'abhang' },
   { slug: 'arti', type: 'aarti' },
 ];
 

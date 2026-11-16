@@ -462,7 +462,7 @@ export function Vitthalaya3DSanctuary({
             <span className="inline-block w-1 h-1 rounded-full bg-[#f6bc55]" />
             <span className="text-emerald-400 font-sans">{SCRAPED_COMPOSITIONS.length} पवित्र रचना</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold font-marathi text-[#fff8ec] mt-0.5">
+          <h2 className="text-xl sm:text-2xl font-bold font-manthan text-[#fff8ec] mt-0.5">
             ३D संगीत मंडप : पवित्र स्वर दर्शन
           </h2>
         </div>

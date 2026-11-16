@@ -19,7 +19,7 @@ export default defineConfig({
   // Pre-compile every route the journey touches before the first test
   // (Next dev compiles lazily; a cold compile can stall a tight timeout).
   globalSetup: './tests/e2e/global-setup.ts',
-  timeout: 180_000,
+  timeout: 300_000,
   expect: { timeout: 15_000 },
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['list']] : [['list']],
@@ -37,7 +37,7 @@ export default defineConfig({
     command: 'bun run dev',
     url: 'http://localhost:3100/api/health',
     reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
+    timeout: 300_000,
     env: {
       ...process.env,
       PORT: '3100',

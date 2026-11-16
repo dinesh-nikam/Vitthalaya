@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Footprints, Info, BookOpen, ExternalLink, MapPin, Compass, ChevronRight, Home, Landmark, Music } from 'lucide-react';
 import Image from 'next/image';
 import { db } from '@/src/db/client';
+import { WariAnimatedShowcase } from '@/components/cinematic/wari-animated-showcase';
 import '@/app/homepage.css';
 
 export const metadata = {
@@ -74,6 +75,11 @@ export default async function WariPage() {
             <span>एकूण अंतर: <strong className="text-[var(--dp-ink)]">{totalKm} किलोमीटर</strong> · देहू/आळंदी ते पंढरपूर</span>
           </div>
         </div>
+      </section>
+
+      {/* Sजीव वारी पदभ्रमण दर्शन (Animated Photographic Chapter Showcase) */}
+      <section className="vitthalaya-container max-w-5xl pt-10">
+        <WariAnimatedShowcase />
       </section>
 
       {/* Journey Route Guide */}

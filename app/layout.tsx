@@ -30,8 +30,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 import { Providers } from '@/components/providers';
-import { HeaderNav } from '@/components/header-nav';
+import { HeaderNav, BrandLogo } from '@/components/header-nav';
 import { SiteFooter } from '@/components/site-footer';
+import { ConditionalHeader } from '@/components/conditional-header';
+import { ConditionalFooter } from '@/components/conditional-footer';
 
 export default async function RootLayout({
   children,
@@ -93,24 +95,28 @@ export default async function RootLayout({
               >
                 मुख्य सामग्रीवर जा
               </a>
-              <header role="banner" className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
-                <div className="container mx-auto flex h-16 items-center justify-between px-4">
-                  <a href="/" className="font-marathiHeading text-xl text-saffron">
-                    डिजिटल पंढरपूर
-                  </a>
-                  <HeaderNav />
-                </div>
-              </header>
+              <ConditionalHeader>
+                <header role="banner" className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
+                  <div className="container mx-auto flex h-16 items-center justify-between px-4">
+                    <BrandLogo />
+                    <HeaderNav />
+                  </div>
+                </header>
+              </ConditionalHeader>
               <main role="main" aria-label="मुख्य सामग्री" className="flex-1 pb-16 lg:pb-0" id="main-content">
                 {children}
               </main>
-              <SiteFooter />
+              <ConditionalFooter>
+                <SiteFooter />
+              </ConditionalFooter>
             </div>
           </NextIntlClientProvider>
         </Providers>
         <ConsentBanner />
-        <FloatingPlayer />
-        <BottomTabBar />
+        <ConditionalFooter>
+          <FloatingPlayer />
+          <BottomTabBar />
+        </ConditionalFooter>
         <SearchOverlay />
         <script
           dangerouslySetInnerHTML={{

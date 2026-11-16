@@ -1,0 +1,7 @@
+[test]
+# Playwright test files (*.spec.ts) are run with Playwright test runner (`bun run test:e2e`).
+# Legacy E2E tests are also reserved for browser runners.
+pathIgnorePatterns = [
+  "tests/e2e/.*",
+  "tests/legacy-e2e/.*"
+]

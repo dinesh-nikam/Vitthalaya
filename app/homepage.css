@@ -124,6 +124,33 @@ html.dark {
   100% { transform: scale(2.0); opacity: 0;   }
 }
 
+@keyframes dp-kenburns {
+  0%   { transform: scale(1) translate(0, 0); }
+  50%  { transform: scale(1.06) translate(-1%, -1%); }
+  100% { transform: scale(1) translate(0, 0); }
+}
+
+@keyframes dp-halo-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes dp-gold-shimmer {
+  0%   { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(250%) skewX(-20deg); }
+}
+
+@keyframes dp-diya-glow {
+  0%, 100% { opacity: 0.8; filter: drop-shadow(0 0 12px rgba(246, 188, 85, 0.4)); }
+  50%      { opacity: 1.0; filter: drop-shadow(0 0 24px rgba(246, 188, 85, 0.7)); }
+}
+
+@keyframes dp-bhandara-drift {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+  50%  { transform: translateY(-15px) rotate(180deg); opacity: 0.5; }
+  100% { transform: translateY(0) rotate(360deg); opacity: 0.8; }
+}
+
 /* ── Cinematic Utility Classes ───────────────────────────── */
 
 .vitthalaya-dial-btn {
@@ -148,7 +175,7 @@ html.dark {
 
 /* Epic & chapter headings */
 .dp-epic-title {
-  font-family: var(--font-devanagari-heading), serif;
+  font-family: var(--font-manthan), var(--font-devanagari-heading), serif;
   font-size: var(--dp-type-epic);
   line-height: 0.95;
   letter-spacing: -0.025em;
@@ -156,7 +183,7 @@ html.dark {
   min-width: 0;
 }
 .dp-chapter-title {
-  font-family: var(--font-devanagari-heading), serif;
+  font-family: var(--font-manthan), var(--font-devanagari-heading), serif;
   font-size: var(--dp-type-chapter);
   line-height: 1.0;
   letter-spacing: -0.02em;
@@ -256,6 +283,52 @@ html.dark {
   transform-origin: 50% 100%;
 }
 
+/* Continuous Ken Burns zoom animation for featured images */
+.dp-kenburns-active {
+  animation: dp-kenburns 16s ease-in-out infinite alternate;
+}
+
+/* Rotating golden halo for sacred icons & saints */
+.dp-halo-spin {
+  animation: dp-halo-spin 24s linear infinite;
+}
+
+/* Light sweep shimmer on image card hover */
+.dp-shimmer-container {
+  position: relative;
+  overflow: hidden;
+}
+.dp-shimmer-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 100%
+  );
+  transform: translateX(-150%) skewX(-20deg);
+  pointer-events: none;
+  z-index: 10;
+}
+.dp-shimmer-container:hover::before {
+  animation: dp-gold-shimmer 1.1s var(--ease-spring);
+}
+
+/* 3D Book Cover Perspective */
+.dp-book-3d {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  transition: transform var(--dur-medium) var(--ease-spring);
+}
+.dp-book-3d:hover {
+  transform: perspective(1000px) rotateY(-6deg) scale(1.02);
+}
+
 /* ── Reduced-motion safety net ───────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .dp-act-hidden       { opacity: 1; transform: none; }
@@ -266,6 +339,10 @@ html.dark {
   .dp-taal-ping        { animation: none; }
   .dp-flame-flicker    { animation: none; }
   .dp-saint-card:hover { transform: none; }
+  .dp-kenburns-active  { animation: none; }
+  .dp-halo-spin        { animation: none; }
+  .dp-shimmer-container:hover::before { animation: none; }
+  .dp-book-3d:hover    { transform: none; }
 }
 
 /* Base shell */

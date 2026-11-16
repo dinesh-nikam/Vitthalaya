@@ -1,3 +1,5 @@
+import { SAINT_IMAGE_MAP } from './saint-images';
+
 /**
  * Authoritative Varkari Saint Lineage & Sacred Seals Metadata
  * Pure cultural scholarship — maps every saint to their authentic abhang mudra,
@@ -73,12 +75,14 @@ export const SAINT_SEALS: Record<string, SaintSealData> = {
     glyph: 'ए',
     mudra: 'एका जनार्दनी',
     tradition: 'दत्त व वारकरी परंपरा',
+    authenticPortrait: '/images/saints/sant-eknath.jpg',
     accentBg: 'from-[#5E2B0C] to-[#2E1404]',
   },
   'eknath': {
     glyph: 'ए',
     mudra: 'एका जनार्दनी',
     tradition: 'दत्त व वारकरी परंपरा',
+    authenticPortrait: '/images/saints/sant-eknath.jpg',
     accentBg: 'from-[#5E2B0C] to-[#2E1404]',
   },
   'chokhamela': {
@@ -303,20 +307,25 @@ export const SAINT_SEALS: Record<string, SaintSealData> = {
  * Returns authentic sacred seal metadata for any saint slug.
  */
 export function getSaintSeal(slug?: string | null, nameMarathi?: string): SaintSealData {
-  if (slug) {
-    const clean = slug.toLowerCase().trim();
-    if (SAINT_SEALS[clean]) {
-      return SAINT_SEALS[clean];
+  const clean = slug ? slug.toLowerCase().trim() : '';
+  const seal = clean && SAINT_SEALS[clean] ? { ...SAINT_SEALS[clean] } : null;
+
+  if (seal) {
+    if (!seal.authenticPortrait && clean && SAINT_IMAGE_MAP[clean]) {
+      seal.authenticPortrait = SAINT_IMAGE_MAP[clean];
     }
+    return seal;
   }
 
   // Derive respectful glyph from first letter of Marathi name if unlisted
   const defaultGlyph = nameMarathi ? nameMarathi.replace(/^संत\s*/, '').slice(0, 2) : 'सं';
+  const fallbackImage = (clean && SAINT_IMAGE_MAP[clean]) || '/images/realistic/ancient-manuscript.jpg';
 
   return {
     glyph: defaultGlyph,
     mudra: 'विठ्ठल नामस्मरण',
     tradition: 'वारकरी परंपरा',
+    authenticPortrait: fallbackImage,
     accentBg: 'from-[#522814] to-[#261107]',
   };
 }

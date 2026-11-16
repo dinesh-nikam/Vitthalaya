@@ -96,6 +96,7 @@ module.exports = {
         },
       },
       fontFamily: {
+        manthan: ['var(--font-manthan)', 'var(--font-devanagari-heading)', 'serif'],
         marathi: ['var(--font-devanagari)'],
         marathiHeading: ['var(--font-devanagari-heading)'],
         sans: ['var(--font-inter)'],

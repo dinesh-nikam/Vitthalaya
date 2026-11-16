@@ -1,10 +1,37 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { db } from '../../src/db/client';
 import { BookOpen, Search, Sparkles, ChevronRight, ArrowRight } from 'lucide-react';
 import '@/app/homepage.css';
 
 export const dynamic = 'force-dynamic';
+
+function getBookCover(book: { slug: string; bookType: string; titleMarathi: string }): string {
+  const title = (book.titleMarathi + ' ' + book.slug).toLowerCase();
+  if (title.includes('तुकाराम') || title.includes('गाथा') || title.includes('tukaram')) {
+    return '/images/realistic/ancient-manuscript.jpg';
+  }
+  if (title.includes('ज्ञानेश्वर') || title.includes('ज्ञानेश्वरी') || title.includes('dnyaneshwar')) {
+    return '/images/categories/stotra.jpg';
+  }
+  if (title.includes('हरिपाठ') || title.includes('haripath')) {
+    return '/images/categories/haripath.jpg';
+  }
+  if (title.includes('एकनाथ') || title.includes('भागवत') || title.includes('eknath')) {
+    return '/images/categories/haripath.jpg';
+  }
+  if (title.includes('आरती') || title.includes('aarti')) {
+    return '/images/categories/aarti.jpg';
+  }
+  if (title.includes('भजन') || title.includes('कीर्तन') || title.includes('bhajan')) {
+    return '/images/categories/bhajan.jpg';
+  }
+  if (book.bookType === 'PREMIUM_HARDCOVER' || book.bookType === 'COLLECTOR') {
+    return '/images/realistic/ancient-manuscript.jpg';
+  }
+  return '/images/categories/abhang.jpg';
+}
 
 export const metadata: Metadata = {
   title: 'भक्ती ग्रंथ संग्रह : डिजिटल पंढरपूर',
@@ -179,15 +206,27 @@ export default async function BookMarketplacePage({ searchParams }: SearchParams
                 <Link
                   key={book.id}
                   href={`/books/${book.slug}`}
-                  className="group vitthalaya-card rounded overflow-hidden border border-[var(--dp-rule)] hover:border-[var(--dp-gold)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--dp-focus)] active:translate-y-px block"
+                  className="group vitthalaya-card rounded-lg overflow-hidden border border-[var(--dp-rule)] hover:border-[var(--dp-gold)] transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--dp-focus)] active:translate-y-px block dp-book-3d shadow-sm hover:shadow-md"
                 >
-                  <div className="h-32 bg-[var(--dp-ground-well)] border-b border-[var(--dp-rule)] flex items-center justify-center p-4 text-center">
-                    <h3 className="vitthalaya-display text-base font-bold text-[var(--dp-ink)] group-hover:text-[var(--dp-gold)] transition-colors line-clamp-2">
-                      {book.titleMarathi}
-                    </h3>
+                  <div className="relative aspect-[16/10] w-full bg-[var(--dp-ground-well)] border-b border-[var(--dp-rule)] overflow-hidden dp-shimmer-container">
+                    <Image
+                      src={getBookCover(book)}
+                      alt={book.titleMarathi}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--dp-ground)] via-[var(--dp-ground)]/50 to-transparent" />
+                    <div className="absolute bottom-2 left-3 right-3">
+                      <h3 className="vitthalaya-display text-sm font-bold text-[var(--dp-ink)] group-hover:text-[var(--dp-gold)] transition-colors line-clamp-2">
+                        {book.titleMarathi}
+                      </h3>
+                    </div>
                   </div>
                   <div className="p-3 flex items-center justify-between text-xs font-marathi text-[var(--dp-muted)]">
-                    <span>{BOOK_TYPE_LABELS[book.bookType] ?? book.bookType}</span>
+                    <span className="px-1.5 py-0.5 rounded bg-[var(--dp-ground-well)] text-[var(--dp-gold)] border border-[var(--dp-rule)] text-[10px]">
+                      {BOOK_TYPE_LABELS[book.bookType] ?? book.bookType}
+                    </span>
                     <span>{book.totalPages ? `${book.totalPages} पाने` : 'ग्रंथ'}</span>
                   </div>
                 </Link>
@@ -217,15 +256,23 @@ export default async function BookMarketplacePage({ searchParams }: SearchParams
                 <Link
                   key={book.id}
                   href={`/books/${book.slug}`}
-                  className="group vitthalaya-card rounded overflow-hidden border border-[var(--dp-rule)] hover:border-[var(--dp-gold)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--dp-focus)] active:translate-y-px block flex flex-col justify-between"
+                  className="group vitthalaya-card rounded-lg overflow-hidden border border-[var(--dp-rule)] hover:border-[var(--dp-gold)] transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--dp-focus)] active:translate-y-px block flex flex-col justify-between shadow-sm hover:shadow-xl dp-book-3d"
                 >
-                  <div className="h-40 bg-[var(--dp-ground-well)] border-b border-[var(--dp-rule)] flex items-center justify-center p-5 text-center">
-                    <div>
-                      <h3 className="vitthalaya-display text-lg font-bold text-[var(--dp-ink)] group-hover:text-[var(--dp-gold)] transition-colors line-clamp-2 leading-relaxed">
+                  <div className="relative aspect-[16/10] w-full bg-[var(--dp-ground-well)] border-b border-[var(--dp-rule)] overflow-hidden dp-shimmer-container">
+                    <Image
+                      src={getBookCover(book)}
+                      alt={book.titleMarathi}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--dp-ground)] via-[var(--dp-ground)]/50 to-transparent" />
+                    <div className="absolute bottom-2.5 left-3 right-3">
+                      <h3 className="vitthalaya-display text-base font-bold text-[var(--dp-ink)] group-hover:text-[var(--dp-gold)] transition-colors line-clamp-2 leading-snug">
                         {book.titleMarathi}
                       </h3>
                       {book.titleEnglish && (
-                        <p className="text-xs text-[var(--dp-muted)] mt-1 font-marathi">
+                        <p className="text-[11px] text-[var(--dp-muted)] mt-0.5 font-marathi line-clamp-1">
                           {book.titleEnglish}
                         </p>
                       )}

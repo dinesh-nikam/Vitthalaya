@@ -1,16 +1,48 @@
+/* Google Fonts - Authentic Devanagari Calligraphy & Display Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Rozha+One&family=Tiro+Devanagari+Marathi:ital@0;1&family=Yatra+One&display=swap');
+@import './tailwind.custom.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom design system additions */
-@import './tailwind.custom.css';
+/* AMS Manthan Calligraphy Local Font Declarations */
+@font-face {
+  font-family: 'AMS-Manthan';
+  src: url('/fonts/ams-manthan-regular.woff2') format('woff2'),
+       url('/fonts/AMS%20Manthan%20Regular.ttf') format('truetype'),
+       url('/fonts/ams-manthan-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
+@font-face {
+  font-family: 'AMS Manthan';
+  src: url('/fonts/ams-manthan-regular.woff2') format('woff2'),
+       url('/fonts/AMS%20Manthan%20Regular.ttf') format('truetype'),
+       url('/fonts/ams-manthan-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'AMS Manthan Regular';
+  src: url('/fonts/ams-manthan-regular.woff2') format('woff2'),
+       url('/fonts/AMS%20Manthan%20Regular.ttf') format('truetype'),
+       url('/fonts/ams-manthan-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 @layer base {
   :root {
     --font-inter: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --font-devanagari: "Noto Sans Devanagari", "Kohinoor Devanagari", "Mangal", "Nirmala UI", system-ui, sans-serif;
     --font-devanagari-heading: "Tiro Devanagari Marathi", "Kohinoor Devanagari", "Mangal", "Nirmala UI", serif;
+    --font-manthan: "AMS Manthan", "AMS Manthan Regular", "Rozha One", "Yatra One", "Tiro Devanagari Marathi", serif;
     --background: #FFF8EC;
     --foreground: #2D1810;
     --card: #FFFFFF;
@@ -344,4 +376,9 @@
 .devanagari {
   font-feature-settings: "liga" off;
   text-rendering: optimizeLegibility;
+}
+
+/* AMS Manthan Calligraphy Utility Class */
+.font-manthan {
+  font-family: var(--font-manthan);
 }

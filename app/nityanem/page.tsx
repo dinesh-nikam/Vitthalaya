@@ -72,9 +72,9 @@ export default async function NityanemPage() {
       </section>
 
       {/* Main Body Interactive Client Component */}
-      <main className="vitthalaya-container max-w-5xl pt-10 pb-16">
+      <section className="vitthalaya-container max-w-5xl pt-10 pb-16" aria-label="नित्यनेम दैनिक सेवा">
         <NityanemClient initialData={initialData} />
-      </main>
+      </section>
     </div>
   );
 }

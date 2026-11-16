@@ -1,11 +1,29 @@
 import { db } from '@/src/db/client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getFestivalsForYear } from '@/src/lib/festival-calculator';
 import { Calendar, Music, ArrowRight, ChevronRight, Sparkles } from 'lucide-react';
 import { canonicalMetadata } from '@/src/lib/seo';
 import '@/app/homepage.css';
 
 export const dynamic = 'force-dynamic';
+
+function getFestivalImage(name: string): string {
+  const n = name.toLowerCase();
+  if (n.includes('आषाढी') || n.includes('ashadi') || n.includes('वारी') || n.includes('wari')) {
+    return '/images/realistic/wari-procession.jpg';
+  }
+  if (n.includes('कार्तिकी') || n.includes('kartiki') || n.includes('दीप') || n.includes('दीपावली')) {
+    return '/images/realistic/temple-aarti.jpg';
+  }
+  if (n.includes('गुढी') || n.includes('gudi') || n.includes('पाडवा')) {
+    return '/images/festivals/gudi-padwa.jpg';
+  }
+  if (n.includes('भंडारा') || n.includes('खंडोबा') || n.includes('jejuri')) {
+    return '/images/jejuri-bhandara.png';
+  }
+  return '/images/realistic/pandharpur-temple.jpg';
+}
 
 export const metadata = {
   title: 'सण व उत्सव : हिंदू पंचांग व वारकरी सण | डिजिटल पंढरपूर',
@@ -109,9 +127,20 @@ export default async function FestivalsIndexPage() {
                 </div>
 
                 {/* Festival Card */}
-                <div className="vitthalaya-card rounded p-6 border border-[var(--dp-rule)] hover:border-[var(--dp-gold)] transition-colors grid md:grid-cols-3 gap-6">
-                  {/* Column 1: Festival Date Block */}
+                <div className="vitthalaya-card rounded-lg overflow-hidden p-6 border border-[var(--dp-rule)] hover:border-[var(--dp-gold)] transition-all grid md:grid-cols-3 gap-6 shadow-sm hover:shadow-md">
+                  {/* Column 1: Festival Date Block & Real Cultural Visual */}
                   <div className="space-y-3 md:border-r border-[var(--dp-rule)] md:pr-6">
+                    <div className="relative aspect-[16/10] w-full rounded overflow-hidden border border-[var(--dp-rule)] mb-2 dp-shimmer-container shadow-sm">
+                      <Image
+                        src={getFestivalImage(festival.nameMarathi + ' ' + festival.nameTranslit)}
+                        alt={festival.nameMarathi}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 30vw"
+                        className="object-cover transition-transform duration-700 ease-out hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[var(--dp-ground)]/80 via-transparent to-transparent pointer-events-none" />
+                    </div>
+
                     <div>
                       <h2 className="vitthalaya-display text-xl font-bold text-[var(--dp-ink)] leading-tight">
                         {festival.nameMarathi}

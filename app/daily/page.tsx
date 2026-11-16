@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { db } from '@/src/db/client';
 import { canonicalMetadata } from '@/src/lib/seo';
+import { getSaintSeal } from '@/src/lib/saint-metadata';
 import {
   BookOpen,
   CalendarDays,
@@ -124,17 +126,29 @@ export default async function DailyPage() {
         </nav>
 
         {/* Page Header */}
-        <header className="mb-12 text-center">
-          <p className="text-xs text-[var(--dp-gold)] font-marathi mb-2">
-            दैनिक उपासना व नित्यनेम
-          </p>
-          <h1 className="vitthalaya-display text-3xl sm:text-4xl md:text-5xl font-bold mb-3">
-            आजची भक्ती साधना
-          </h1>
-          <p className="text-base text-[var(--dp-ink-dim)] font-marathi">{todayLabel}</p>
-          <p className="vitthalaya-prose text-xs text-[var(--dp-muted)] mt-2 max-w-lg mx-auto">
-            रोज एक अभंग, एक संत आणि एक चिंतन: वारकरी संस्कृतीसोबत दिवस सुरू करा.
-          </p>
+        <header
+          className="mb-12 text-center p-8 sm:p-10 rounded-2xl relative overflow-hidden border border-[var(--dp-rule)] shadow-sm"
+          style={{
+            backgroundImage: `
+              linear-gradient(to bottom, rgba(10,8,6,0.92) 0%, rgba(10,8,6,0.85) 60%, rgba(10,8,6,0.98) 100%),
+              url('/images/realistic/temple-aarti.jpg')
+            `,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+          <div className="relative z-10">
+            <p className="text-xs text-[var(--dp-gold)] font-marathi mb-2">
+              दैनिक उपासना व नित्यनेम
+            </p>
+            <h1 className="vitthalaya-display text-3xl sm:text-4xl md:text-5xl font-bold mb-3 text-[var(--dp-ink)]">
+              आजची भक्ती साधना
+            </h1>
+            <p className="text-base text-[var(--dp-gold-celestial)] font-marathi font-medium">{todayLabel}</p>
+            <p className="vitthalaya-prose text-xs text-[var(--dp-ink-dim)] mt-2 max-w-lg mx-auto">
+              रोज एक अभंग, एक संत आणि एक चिंतन: वारकरी संस्कृतीसोबत दिवस सुरू करा.
+            </p>
+          </div>
         </header>
 
         {/* Daily Picks Stack */}
@@ -208,8 +222,58 @@ export default async function DailyPage() {
               <section
                 key={slot}
                 aria-labelledby={`daily-${slot.toLowerCase()}`}
-                className="vitthalaya-card rounded p-6 sm:p-8"
+                className="vitthalaya-card rounded-lg overflow-hidden p-6 sm:p-8 border border-[var(--dp-rule)] hover:border-[var(--dp-gold)] transition-all shadow-sm"
               >
+                {slot === 'ABHANG' && (
+                  <div className="relative aspect-[21/9] w-full rounded overflow-hidden border border-[var(--dp-rule)] mb-5 dp-shimmer-container shadow-sm">
+                    <Image
+                      src="/images/realistic/ancient-manuscript.jpg"
+                      alt="पवित्र अभंग हस्तलिखित"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 800px"
+                      className="object-cover transition-transform duration-700 ease-out hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--dp-ground)] via-[var(--dp-ground)]/50 to-transparent" />
+                    <span className="absolute bottom-2.5 left-3 px-2 py-0.5 rounded text-[11px] font-marathi bg-[var(--dp-ground-well)]/90 text-[var(--dp-gold)] border border-[var(--dp-rule)] backdrop-blur-xs">
+                      दैनंदिन अभंग दर्शन
+                    </span>
+                  </div>
+                )}
+
+                {slot === 'SAINT' && feature.saint && (() => {
+                  const seal = getSaintSeal(feature.saint.slug, feature.saint.nameMarathi);
+                  return seal.authenticPortrait ? (
+                    <div className="relative aspect-[21/9] w-full rounded overflow-hidden border border-[var(--dp-rule)] mb-5 dp-shimmer-container shadow-sm">
+                      <Image
+                        src={seal.authenticPortrait}
+                        alt={feature.saint.nameMarathi}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 800px"
+                        className="object-cover transition-transform duration-700 ease-out hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[var(--dp-ground)] via-[var(--dp-ground)]/50 to-transparent" />
+                      <span className="absolute bottom-2.5 left-3 px-2 py-0.5 rounded text-[11px] font-marathi bg-[var(--dp-ground-well)]/90 text-[var(--dp-gold)] border border-[var(--dp-rule)] backdrop-blur-xs">
+                        {seal.mudra}
+                      </span>
+                    </div>
+                  ) : null;
+                })()}
+
+                {slot === 'FESTIVAL' && (
+                  <div className="relative aspect-[21/9] w-full rounded overflow-hidden border border-[var(--dp-rule)] mb-5 dp-shimmer-container shadow-sm">
+                    <Image
+                      src="/images/realistic/wari-procession.jpg"
+                      alt="वारकरी उत्सव सोहळा"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 800px"
+                      className="object-cover transition-transform duration-700 ease-out hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--dp-ground)] via-[var(--dp-ground)]/50 to-transparent" />
+                    <span className="absolute bottom-2.5 left-3 px-2 py-0.5 rounded text-[11px] font-marathi bg-[var(--dp-ground-well)]/90 text-[var(--dp-gold)] border border-[var(--dp-rule)] backdrop-blur-xs">
+                      उत्सव व दिनविशेष
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-start gap-4 mb-4">
                   <div className="w-10 h-10 rounded bg-[var(--dp-ground-well)] border border-[var(--dp-rule)] flex items-center justify-center flex-shrink-0 text-[var(--dp-gold)]">
                     <Icon size={20} aria-hidden="true" />

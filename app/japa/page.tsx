@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ChevronRight, Sparkles, HeartHandshake, ShieldCheck, BookOpen } from 'lucide-react';
 import { JapaMala } from '@/components/japa-mala';
 import { TanpuraDrone } from '@/components/tanpura-drone';
@@ -55,15 +56,36 @@ export default function JapaPage() {
         </section>
 
         {/* ── Theological Significance of Tulsi Mala ── */}
-        <section className="vitthalaya-card rounded p-6 sm:p-8 space-y-6" aria-labelledby="theology-heading">
-          <div className="flex items-center gap-2 text-[var(--dp-gold)]">
-            <Sparkles size={16} aria-hidden="true" />
-            <h2 id="theology-heading" className="vitthalaya-display text-xl font-bold text-[var(--dp-ink)]">
-              तुळशी माळेचे वारकरी परंपरेतील महत्त्व
-            </h2>
+        <section className="vitthalaya-card rounded-xl p-6 sm:p-8 space-y-8 border border-[var(--dp-rule)]" aria-labelledby="theology-heading">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            <div className="md:col-span-5 relative aspect-[4/3] rounded-lg overflow-hidden border border-[var(--dp-rule)] shadow-sm">
+              <Image
+                src="/images/tulsi-mala.png"
+                alt="वारकरी तुळशी जपमाळ नामस्मरण"
+                fill
+                sizes="(max-width: 768px) 100vw, 40vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--dp-ground)]/80 via-transparent to-transparent pointer-events-none" />
+              <span className="absolute bottom-3 left-3 px-2.5 py-1 rounded text-xs font-marathi bg-[var(--dp-ground-well)]/90 text-[var(--dp-gold)] border border-[var(--dp-rule)] backdrop-blur-xs">
+                १०८ काष्ठ मणी
+              </span>
+            </div>
+
+            <div className="md:col-span-7 space-y-4">
+              <div className="flex items-center gap-2 text-[var(--dp-gold)]">
+                <Sparkles size={16} aria-hidden="true" />
+                <h2 id="theology-heading" className="vitthalaya-display text-2xl font-bold text-[var(--dp-ink)]">
+                  तुळशी माळेचे वारकरी परंपरेतील महत्त्व
+                </h2>
+              </div>
+              <p className="vitthalaya-prose text-sm text-[var(--dp-ink-dim)] leading-relaxed">
+                वारकरी संप्रदायात गळ्यात तुळशीची माळ घालणे ही सात्विक, सदाचारी आणि अहिंसक जीवनाची पवित्र दीक्षा आहे. १०८ मण्यांची माळ हा केवळ मोजणीचे साधन नसून अखंड ईशचिंतनाचे प्रतीक आहे.
+              </p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-marathi text-xs sm:text-sm text-[var(--dp-ink-dim)] leading-relaxed">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-marathi text-xs sm:text-sm text-[var(--dp-ink-dim)] leading-relaxed pt-4 border-t border-[var(--dp-rule)]">
             <div className="p-4 rounded bg-[var(--dp-ground-well)] border border-[var(--dp-rule)] space-y-2">
               <h3 className="font-bold text-[var(--dp-ink)] text-sm flex items-center gap-1.5">
                 <HeartHandshake size={14} className="text-[var(--dp-gold)]" aria-hidden="true" />

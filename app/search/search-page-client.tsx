@@ -244,14 +244,14 @@ export default function SearchPageClient({
           </aside>
 
           {/* Results */}
-          <main className="flex-1 min-w-0">
+          <section className="flex-1 min-w-0" aria-label="शोध निकाल">
             <SearchResultsList
               results={results}
               query={query}
               isLoading={isLoading}
               total={total}
             />
-          </main>
+          </section>
         </div>
       )}
     </div>

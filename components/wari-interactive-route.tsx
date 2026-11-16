@@ -34,9 +34,9 @@ const VISUAL_MILESTONES: VisualMilestone[] = [
     title: 'आळंदी / देहू',
     sub: 'प्रस्थान · ० किमी',
     color: '#1e3a4a',
-    imageUrl: '/images/registry/w5.jpg',
+    imageUrl: '/images/realistic/alandi-indrayani-river.jpg',
     icon: Sparkles,
-    desc: 'कोट्यवधी वारकऱ्यांची भक्ती यात्रा सुरू होते.',
+    desc: 'पवित्र इंद्रायणी तीरावरून कोट्यवधी वारकऱ्यांची भक्ती यात्रा सुरू होते.',
     targetDay: 1,
   },
   {
@@ -44,9 +44,9 @@ const VISUAL_MILESTONES: VisualMilestone[] = [
     title: 'दिवे घाट',
     sub: 'सासवड · ५२ किमी',
     color: '#2a4a2e',
-    imageUrl: '/images/realistic/wari-procession.jpg',
+    imageUrl: '/images/realistic/dive-ghat-panoramic.jpg',
     icon: Mountain,
-    desc: 'पर्वत दर्यामधून सर्पाकार वाट आणि भगव्या ध्वजांचा डौल.',
+    desc: 'पर्वत दर्यामधून सर्पाकार वाट आणि डौलदार भगव्या ध्वजांची रांग.',
     targetDay: 4,
   },
   {
@@ -64,19 +64,19 @@ const VISUAL_MILESTONES: VisualMilestone[] = [
     title: 'लोणंद रिंगण',
     sub: '९९ किमी',
     color: '#3a1500',
-    imageUrl: '/images/registry/w7.jpg',
+    imageUrl: '/images/realistic/ringan-circular.jpg',
     icon: Compass,
     desc: 'माऊलींच्या अश्वांचे वर्तुळाकार प्रदक्षिणा — आसमंत दुमदुमतो.',
     targetDay: 7,
   },
   {
     id: 'pandharpur',
-    title: 'पंढरपूर',
+    title: 'पंढरपूर महामंदिर',
     sub: '२५० किमी',
     color: '#1e3a4a',
-    imageUrl: '/images/realistic/chandrabhaga-river.jpg',
+    imageUrl: '/images/realistic/pandharpur-temple-facade.jpg',
     icon: Waves,
-    desc: 'पवित्र चंद्रभागेत स्नान आणि विठ्ठल चरणी दंडवत.',
+    desc: 'पवित्र चंद्रभागेत स्नान आणि विठ्ठल चरणी कृतार्थ दंडवत.',
     targetDay: 16,
   },
 ];
@@ -128,24 +128,27 @@ const TUKARAM_STOPS: WariStop[] = [
 
 function getStopImage(stop: WariStop): string {
   if (stop.day === 1 || stop.location.includes('देहू') || stop.location.includes('आळंदी')) {
-    return '/images/registry/w5.jpg';
+    return '/images/realistic/alandi-indrayani-river.jpg';
   }
   if (stop.location.includes('जेजुरी')) {
     return '/images/jejuri-bhandara.png';
   }
   if (stop.location.includes('रिंगण') || stop.highlight.includes('रिंगण')) {
-    return '/images/registry/w7.jpg';
-  }
-  if (stop.location.includes('पंढरपूर') || stop.riverOrPass?.includes('चंद्रभागा')) {
-    return '/images/realistic/chandrabhaga-river.jpg';
-  }
-  if (stop.riverOrPass?.includes('नीरा') || stop.riverOrPass?.includes('कऱ्हा')) {
-    return '/images/registry/s12.jpg';
+    return '/images/realistic/ringan-circular.jpg';
   }
   if (stop.location.includes('सासवड') || stop.riverOrPass?.includes('घाट')) {
-    return '/images/realistic/wari-procession.jpg';
+    return '/images/realistic/dive-ghat-panoramic.jpg';
   }
-  return '/images/registry/w1.jpg';
+  if (stop.location.includes('पंढरपूर') || stop.riverOrPass?.includes('चंद्रभागा')) {
+    return '/images/realistic/pandharpur-temple-facade.jpg';
+  }
+  if (stop.highlight.includes('रथ') || stop.location.includes('इंदापूर') || stop.location.includes('बारामती')) {
+    return '/images/realistic/tukaram-palkhi-rath.jpg';
+  }
+  if (stop.riverOrPass?.includes('नीरा') || stop.riverOrPass?.includes('कऱ्हा')) {
+    return '/images/realistic/alandi-deepmaal.jpg';
+  }
+  return '/images/realistic/dindi-procession.jpg';
 }
 
 export function WariInteractiveRoute() {
@@ -251,7 +254,7 @@ export function WariInteractiveRoute() {
                   alt=""
                   fill
                   sizes="200px"
-                  className="object-cover opacity-20 group-hover:opacity-35 transition-opacity duration-300 scale-105 group-hover:scale-100"
+                  className="object-cover opacity-35 group-hover:opacity-65 transition-all duration-500 scale-100 group-hover:scale-110"
                 />
                 <div
                   className="absolute inset-0"
