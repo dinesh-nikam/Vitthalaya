@@ -18,6 +18,8 @@ import { LanguageSwitcher } from './language-switcher';
 
 const PILLAR_LINKS = [
   { href: '/daily', label: 'आजचे भक्ती' },
+  { href: '/nityanem', label: 'नित्यनेम' },
+  { href: '/japa', label: 'नामजप' },
   { href: '/explore', label: 'एक्सप्लोर' },
   { href: '/library', label: 'लायब्ररी' },
   { href: '/record', label: 'रेकॉर्ड' },
@@ -26,7 +28,26 @@ const PILLAR_LINKS = [
   { href: '/learn', label: 'शिका' },
   { href: '/about', label: 'बद्दल' },
   { href: '/donate', label: 'सहयोग' },
+  { href: '/luxury', label: 'दालन' },
 ];
+
+/**
+ * Sacred Brand Logo / Title for Digital Pandharpur.
+ * Uses font-manthan for elevated sacred calligraphy aesthetic.
+ */
+export function BrandLogo({ className = '' }: { className?: string }) {
+  return (
+    <Link
+      href="/"
+      className={`font-manthan text-xl text-saffron font-bold tracking-wide transition-opacity hover:opacity-90 ${className}`}
+      aria-label="डिजिटल पंढरपूर"
+    >
+      डिजिटल पंढरपूर
+    </Link>
+  );
+}
+
+export const HeaderBrand = BrandLogo;
 
 export function HeaderNav() {
   const { data: session } = useSession();

@@ -3,7 +3,9 @@
 import * as React from 'react';
 import { signIn } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Loader2, LogIn, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+import { Loader2, LogIn, AlertCircle, Sparkles, Shield } from 'lucide-react';
+import '@/app/homepage.css';
 
 function SignInForm() {
   const router = useRouter();
@@ -22,7 +24,7 @@ function SignInForm() {
     setLocalError(null);
 
     if (!email || !password) {
-      setLocalError('कृपया ईमेल आणि पासवर्ड दोन्ही टाका.');
+      setLocalError('कृपया ईमेल आणि पासवर्ड दोन्ही प्रविष्ट करा.');
       setLoading(false);
       return;
     }
@@ -53,37 +55,43 @@ function SignInForm() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-cream/30 px-4 py-12 dark:bg-background">
-      <div className="max-w-md w-full space-y-8 bg-card border-2 border-saffron/20 p-8 rounded-2xl shadow-xl">
-        
+    <div className="vitthalaya-shell min-h-screen flex items-center justify-center p-4 py-12">
+      <div className="vitthalaya-card rounded-2xl p-6 sm:p-8 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] shadow-2xl max-w-md w-full space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 bg-saffron/10 border border-saffron/20 rounded-full flex items-center justify-center mx-auto text-3xl">
-            🚩
+          <div className="w-14 h-14 bg-[var(--dp-ground-elevated)] border border-[var(--dp-gold)] rounded-full flex items-center justify-center mx-auto text-[var(--dp-gold)] shadow-[0_0_15px_rgba(201,162,39,0.25)]">
+            <LogIn className="w-6 h-6" />
           </div>
-          <h1 className="font-marathiHeading text-2xl font-bold text-maroon dark:text-saffron">
-            डिजिटल पंढरपूर योगदान लॉगिन
+          <span className="inline-flex items-center gap-1 px-3 py-0.5 bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] text-[var(--dp-gold)] text-xs font-marathi rounded-full">
+            <Sparkles size={11} />
+            साधक प्रवेश दालन
+          </span>
+          <h1 className="vitthalaya-display text-2xl font-bold">
+            डिजिटल पंढरपूर प्रवेश
           </h1>
-          <p className="text-sm text-muted-foreground">
-            भक्ती साहित्याचे संरक्षण आणि संपादन करण्यासाठी योगदान द्या
+          <p className="text-xs font-marathi text-[var(--dp-muted)] leading-relaxed">
+            संत साहित्य संरक्षण, संकलन व संपादनासाठी खात्यात प्रवेश करा
           </p>
         </div>
 
         {/* Errors */}
         {(localError || error) && (
-          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-lg p-3 flex gap-2 items-start text-sm text-red-600 dark:text-red-400">
-            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <div className="bg-red-950/40 border border-red-500/30 rounded-xl p-3.5 flex gap-2.5 items-start text-xs font-marathi text-red-300">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-400" />
             <p>{localError || 'प्रमाणीकरण अयशस्वी झाले. कृपया लॉग इन क्रेडेंशियल तपासा.'}</p>
           </div>
         )}
 
         {/* Credentials Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-3">
             {/* Email field */}
-            <div className="space-y-1.5">
-              <label htmlFor="email" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                ईमेल पत्ता (Email)
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1.5"
+              >
+                ईमेल पत्ता (Email) *
               </label>
               <input
                 id="email"
@@ -93,15 +101,26 @@ function SignInForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="contributor@warkari.org"
-                className="w-full px-4 py-2 border border-saffron/20 focus:border-saffron focus:ring-2 focus:ring-saffron/20 bg-background rounded-lg text-sm outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-lg border border-[var(--dp-rule)] bg-[var(--dp-ground-elevated)] text-[var(--dp-ink)] placeholder-[var(--dp-muted)] focus:border-[var(--dp-gold)] focus:ring-2 focus:ring-[var(--dp-gold)]/20 outline-none text-xs sm:text-sm font-marathi transition-colors min-h-[44px]"
               />
             </div>
 
             {/* Password field */}
-            <div className="space-y-1.5">
-              <label htmlFor="password" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                पासवर्ड (Password)
-              </label>
+            <div>
+              <div className="flex justify-between items-center mb-1.5">
+                <label
+                  htmlFor="password"
+                  className="text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi"
+                >
+                  पासवर्ड (Password) *
+                </label>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-xs font-marathi text-[var(--dp-gold)] hover:underline"
+                >
+                  पासवर्ड विसरलात?
+                </Link>
+              </div>
               <input
                 id="password"
                 type="password"
@@ -110,7 +129,7 @@ function SignInForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-2 border border-saffron/20 focus:border-saffron focus:ring-2 focus:ring-saffron/20 bg-background rounded-lg text-sm outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-lg border border-[var(--dp-rule)] bg-[var(--dp-ground-elevated)] text-[var(--dp-ink)] placeholder-[var(--dp-muted)] focus:border-[var(--dp-gold)] focus:ring-2 focus:ring-[var(--dp-gold)]/20 outline-none text-xs sm:text-sm font-marathi transition-colors min-h-[44px]"
               />
             </div>
           </div>
@@ -118,7 +137,7 @@ function SignInForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-lg text-sm font-semibold text-white bg-saffron hover:bg-saffron/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-saffron transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-md"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-xs sm:text-sm font-semibold font-marathi text-[#0d0906] bg-[var(--dp-gold)] hover:bg-[var(--dp-gold-celestial)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dp-gold)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md min-h-[44px]"
           >
             {loading ? (
               <>
@@ -134,22 +153,29 @@ function SignInForm() {
           </button>
         </form>
 
+        {/* Signup Link */}
+        <div className="text-center pt-2 border-t border-[var(--dp-rule)]/40 text-xs font-marathi text-[var(--dp-muted)]">
+          <span>नवीन साधक आहात? </span>
+          <Link href="/auth/signup" className="text-[var(--dp-gold)] font-semibold hover:underline">
+            नवीन खाते तयार करा
+          </Link>
+        </div>
+
         {/* Developer Sandbox login assistance */}
-        <div className="bg-saffron/5 border border-saffron/20 rounded-lg p-4 space-y-2">
-          <p className="text-xs font-bold text-saffron font-marathiHeading uppercase tracking-wider">
-            🛠️ विकासक चाचणी माहिती (Developer Login):
-          </p>
-          <div className="text-xs text-foreground/80 space-y-1">
-            <p>
-              स्थानिक चाचणीसाठी खालील डीफॉल्ट क्रेडेंशियल्स वापरा:
-            </p>
-            <p className="font-mono mt-1 select-all bg-background border border-saffron/10 p-1.5 rounded">
-              ईमेल: <span className="font-bold text-maroon dark:text-saffron">admin@warkari.org</span><br />
-              पासवर्ड: <span className="font-bold text-maroon dark:text-saffron">admin123</span>
+        <div className="bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] rounded-xl p-4 space-y-1.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--dp-gold)] font-marathi">
+            <Shield size={13} />
+            <span>विकासक चाचणी माहिती (Dev Credentials):</span>
+          </div>
+          <div className="text-xs text-[var(--dp-muted)] font-marathi space-y-1">
+            <p>स्थानिक चाचणीसाठी खालील क्रेडेंशियल्स उपलब्ध आहेत:</p>
+            <p className="font-mono text-[11px] select-all bg-[var(--dp-ground-deep)] border border-[var(--dp-rule)]/50 p-2 rounded text-[var(--dp-ink)]">
+              ईमेल: <span className="text-[var(--dp-gold)]">admin@warkari.org</span>
+              <br />
+              पासवर्ड: <span className="text-[var(--dp-gold)]">admin123</span>
             </p>
           </div>
         </div>
-
       </div>
     </div>
   );
@@ -157,11 +183,13 @@ function SignInForm() {
 
 export default function SignInPage() {
   return (
-    <React.Suspense fallback={
-      <div className="min-h-[80vh] flex items-center justify-center bg-cream/30 px-4 py-12 dark:bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-saffron" />
-      </div>
-    }>
+    <React.Suspense
+      fallback={
+        <div className="vitthalaya-shell min-h-screen flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--dp-gold)]" />
+        </div>
+      }
+    >
       <SignInForm />
     </React.Suspense>
   );

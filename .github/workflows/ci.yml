@@ -48,8 +48,8 @@ jobs:
       - name: OpenAPI doc-lint
         run: bun run doc:lint
 
-      - name: Run unit tests
-        run: bun test
+      - name: Run unit & integration tests
+        run: bun run test
 
       - name: Build production bundle
         run: bun run build

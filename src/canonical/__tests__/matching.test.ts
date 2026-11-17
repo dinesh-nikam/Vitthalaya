@@ -42,7 +42,7 @@ import {
 } from '../confidence-score';
 
 import { CanonicalEngine } from '../canonical-engine';
-import { DedupEngine } from '../../scraper/dedup';
+import { DedupEngine } from '../dedup-engine';
 import type { AlgorithmScore, MatchCandidate } from '../types';
 import { CONFIDENCE_THRESHOLDS } from '../types';
 

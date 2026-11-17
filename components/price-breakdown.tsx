@@ -16,22 +16,30 @@ interface PriceBreakdownProps {
  */
 export function PriceBreakdown({ subtotal, shippingCost = 0, tax, total }: PriceBreakdownProps) {
   return (
-    <div className="space-y-2 text-sm">
-      <div className="flex justify-between">
-        <span className="text-gray-500">उप-एकूण</span>
-        <span>₹{subtotal.toLocaleString('en-IN')}</span>
+    <div className="space-y-2 text-sm font-marathi">
+      <div className="flex justify-between text-[var(--dp-muted,theme(colors.gray.500))]">
+        <span>उप-एकूण (Subtotal)</span>
+        <span className="text-[var(--dp-ink,theme(colors.gray.800))] font-medium">
+          ₹{subtotal.toLocaleString('en-IN')}
+        </span>
       </div>
-      <div className="flex justify-between">
-        <span className="text-gray-500">शिपिंग</span>
-        <span>{shippingCost ? `₹${shippingCost.toLocaleString('en-IN')}` : 'मोफत'}</span>
+      <div className="flex justify-between text-[var(--dp-muted,theme(colors.gray.500))]">
+        <span>शिपिंग शुल्क (Shipping)</span>
+        <span className="text-[var(--dp-gold,theme(colors.amber.600))] font-medium">
+          {shippingCost ? `₹${shippingCost.toLocaleString('en-IN')}` : 'मोफत (Free)'}
+        </span>
       </div>
-      <div className="flex justify-between">
-        <span className="text-gray-500">{GST_LABEL}</span>
-        <span>₹{tax.toLocaleString('en-IN')}</span>
+      <div className="flex justify-between text-[var(--dp-muted,theme(colors.gray.500))]">
+        <span>{GST_LABEL}</span>
+        <span className="text-[var(--dp-ink,theme(colors.gray.800))] font-medium">
+          ₹{tax.toLocaleString('en-IN')}
+        </span>
       </div>
-      <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-50">
-        <span>एकूण</span>
-        <span>₹{total.toLocaleString('en-IN')}</span>
+      <div className="flex justify-between font-bold text-base sm:text-lg pt-3 border-t border-[var(--dp-rule,theme(colors.gray.200))]">
+        <span className="text-[var(--dp-gold,theme(colors.amber.600))]">एकूण देय रक्कम (Total)</span>
+        <span className="text-[var(--dp-gold,theme(colors.amber.600))]">
+          ₹{total.toLocaleString('en-IN')}
+        </span>
       </div>
     </div>
   );

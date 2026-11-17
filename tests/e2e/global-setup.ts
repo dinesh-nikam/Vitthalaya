@@ -16,6 +16,10 @@ const BASE = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3100';
 /** Routes to compile before the journey starts. */
 const WARM_ROUTES = [
   '/', // homepage (SSR + RSC payload)
+  '/explore', // explore compositions catalog
+  '/saints', // saints catalog
+  '/wari', // wari pilgrimage timeline
+  '/nityanem', // liturgical schedule
   '/search?q=पांडुरंग', // search page SSR
   '/api/search?q=पांडुरंग', // search API (the hybrid path)
   '/api/auth/session', // next-auth session probe
@@ -25,16 +29,19 @@ const WARM_ROUTES = [
   '/api/acquire/moderation/list', // moderation queue API
 ];
 
-async function warm(ctx: Awaited<ReturnType<typeof request.newContext>>, route: string): Promise<number> {
+async function warm(ctx: Awaited<ReturnType<typeof request.newContext>>, route: string): Promise<number | null> {
   const started = Date.now();
-  // 405/401/307 are fine — the point is that the route compiled.
-  const res = await ctx.get(route, { timeout: 120_000 }).catch((e) => {
-    console.error(`[prewarm] ${route} failed to compile: ${e.message}`);
-    throw e;
-  });
-  const ms = Date.now() - started;
-  console.log(`[prewarm] ${route} → ${res.status()} (${ms}ms)`);
-  return res.status();
+  try {
+    // 405/401/307 are fine — the point is that the route triggered compilation.
+    const res = await ctx.get(route, { timeout: 45_000 });
+    const ms = Date.now() - started;
+    console.log(`[prewarm] ${route} → ${res.status()} (${ms}ms)`);
+    return res.status();
+  } catch (e: any) {
+    const ms = Date.now() - started;
+    console.warn(`[prewarm] ${route} compile probe finished or timed out after ${ms}ms: ${e?.message ?? 'unknown'} (continuing)`);
+    return null;
+  }
 }
 
 export default async function globalSetup(): Promise<void> {
@@ -47,8 +54,8 @@ export default async function globalSetup(): Promise<void> {
     // The composition page is dynamic (/abhang/[slug]) and isn't compiled
     // until first visited. Derive a real slug from the warmed search API and
     // compile that page too, so the test's first composition visit is warm.
-    const searchRes = await ctx.get('/api/search?q=पांडुरंग', { timeout: 120_000 });
-    const body = (await searchRes.json().catch(() => null)) as { results?: { slug?: string }[] } | null;
+    const searchRes = await ctx.get('/api/search?q=पांडुरंग', { timeout: 45_000 }).catch(() => null);
+    const body = searchRes ? ((await searchRes.json().catch(() => null)) as { results?: { slug?: string }[] } | null) : null;
     const slug = body?.results?.find((r) => r.slug)?.slug;
     if (slug) {
       await warm(ctx, `/abhang/${slug}`);

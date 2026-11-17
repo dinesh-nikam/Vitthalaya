@@ -33,7 +33,7 @@ jobs:
         run: bun run doc:lint
 
       - name: Run Tests
-        run: bun test
+        run: bun run test
 
   # Admin audio integration tests against a throwaway Postgres instance.
   # Every PR gets a fresh ephemeral database — nothing here touches any dev

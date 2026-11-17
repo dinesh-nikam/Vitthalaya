@@ -3,7 +3,8 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Loader2, UserPlus, AlertCircle, ArrowRight } from 'lucide-react';
+import { Loader2, UserPlus, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
+import '@/app/homepage.css';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function SignUpPage() {
     setSuccess(null);
 
     if (!name || !email || !password || !confirmPassword) {
-      setError('कृपया सर्व रकाने भरा.');
+      setError('कृपया सर्व आवश्यक रकाने भरा.');
       setLoading(false);
       return;
     }
@@ -51,10 +52,9 @@ export default function SignUpPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'नोंदणी करताना चूक झाली.');
+        setError(data.error || 'नोंदणी करताना त्रुटी आली.');
       } else {
-        setSuccess('नोंदणी यशस्वी झाली! ईमेल पडताळणी करत आहे...');
-        // Forward user to verify-email page after registration
+        setSuccess('नोंदणी यशस्वी झाली! ईमेल पडताळणी पानावर नेत आहोत...');
         setTimeout(() => {
           router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
         }, 1500);
@@ -66,33 +66,40 @@ export default function SignUpPage() {
     }
   };
 
+  const inputClass =
+    'w-full px-4 py-2.5 rounded-lg border border-[var(--dp-rule)] bg-[var(--dp-ground-elevated)] text-[var(--dp-ink)] placeholder-[var(--dp-muted)] focus:border-[var(--dp-gold)] focus:ring-2 focus:ring-[var(--dp-gold)]/20 outline-none text-xs sm:text-sm font-marathi transition-colors min-h-[44px]';
+
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-cream/30 px-4 py-12 dark:bg-background">
-      <div className="max-w-md w-full space-y-8 bg-card border-2 border-saffron/20 p-8 rounded-2xl shadow-xl">
-        
+    <div className="vitthalaya-shell min-h-screen flex items-center justify-center p-4 py-12">
+      <div className="vitthalaya-card rounded-2xl p-6 sm:p-8 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] shadow-2xl max-w-md w-full space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 bg-saffron/10 border border-saffron/20 rounded-full flex items-center justify-center mx-auto text-3xl">
-            🚩
+          <div className="w-14 h-14 bg-[var(--dp-ground-elevated)] border border-[var(--dp-gold)] rounded-full flex items-center justify-center mx-auto text-[var(--dp-gold)] shadow-[0_0_15px_rgba(201,162,39,0.25)]">
+            <UserPlus className="w-6 h-6" />
           </div>
-          <h1 className="font-marathiHeading text-2xl font-bold text-maroon dark:text-saffron">
-            नवीन योगदानकर्ता नोंदणी
+          <span className="inline-flex items-center gap-1 px-3 py-0.5 bg-[var(--dp-ground-elevated)] border border-[var(--dp-rule)] text-[var(--dp-gold)] text-xs font-marathi rounded-full">
+            <Sparkles size={11} />
+            नवीन साधक नोंदणी
+          </span>
+          <h1 className="vitthalaya-display text-2xl font-bold">
+            योगदानकर्ता साधक नोंदणी
           </h1>
-          <p className="text-sm text-muted-foreground">
-            भक्ती साहित्याचे जतन करण्यासाठी डिजिटल पंढरपुरात सामील व्हा
+          <p className="text-xs font-marathi text-[var(--dp-muted)] leading-relaxed">
+            वारकरी भक्ती साहित्याचे जतन व शुद्धीकरण करण्यासाठी डिजिटल पंढरपुरात सामील व्हा
           </p>
         </div>
 
         {/* Status Messages */}
         {error && (
-          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-lg p-3 flex gap-2 items-start text-sm text-red-600 dark:text-red-400">
-            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <div className="bg-red-950/40 border border-red-500/30 rounded-xl p-3.5 flex gap-2.5 items-start text-xs font-marathi text-red-300">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-400" />
             <p>{error}</p>
           </div>
         )}
 
         {success && (
-          <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 rounded-lg p-3 text-sm text-green-600 dark:text-green-400">
+          <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-3.5 flex gap-2.5 items-start text-xs font-marathi text-emerald-300">
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-400" />
             <p>{success}</p>
           </div>
         )}
@@ -100,67 +107,79 @@ export default function SignUpPage() {
         {/* Signup Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-3">
-            {/* Name */}
-            <div className="space-y-1">
-              <label htmlFor="name" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                पूर्ण नाव (Full Name)
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1.5"
+              >
+                पूर्ण नाव (Full Name) *
               </label>
               <input
                 id="name"
                 type="text"
+                autoComplete="name"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="उदा. ज्ञानेश्वर पाटील"
-                className="w-full px-4 py-2 border border-saffron/20 focus:border-saffron focus:ring-2 focus:ring-saffron/20 bg-background rounded-lg text-sm outline-none transition-all"
+                placeholder="उदा. ज्ञानेश्वर महाराज कदम"
+                className={inputClass}
               />
             </div>
 
-            {/* Email */}
-            <div className="space-y-1">
-              <label htmlFor="email" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                ईमेल पत्ता (Email)
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1.5"
+              >
+                ईमेल पत्ता (Email) *
               </label>
               <input
                 id="email"
                 type="email"
+                autoComplete="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@warkari.org"
-                className="w-full px-4 py-2 border border-saffron/20 focus:border-saffron focus:ring-2 focus:ring-saffron/20 bg-background rounded-lg text-sm outline-none transition-all"
+                placeholder="contributor@warkari.org"
+                className={inputClass}
               />
             </div>
 
-            {/* Password */}
-            <div className="space-y-1">
-              <label htmlFor="password" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                पासवर्ड (Password)
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1.5"
+              >
+                पासवर्ड (Password) *
               </label>
               <input
                 id="password"
                 type="password"
+                autoComplete="new-password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-4 py-2 border border-saffron/20 focus:border-saffron focus:ring-2 focus:ring-saffron/20 bg-background rounded-lg text-sm outline-none transition-all"
+                placeholder="किमान ६ अक्षरे"
+                className={inputClass}
               />
             </div>
 
-            {/* Confirm Password */}
-            <div className="space-y-1">
-              <label htmlFor="confirmPassword" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                पासवर्डची खात्री करा (Confirm Password)
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-xs font-semibold uppercase tracking-wider text-[var(--dp-ink)] font-marathi mb-1.5"
+              >
+                पासवर्ड पुन्हा प्रविष्ट करा *
               </label>
               <input
                 id="confirmPassword"
                 type="password"
+                autoComplete="new-password"
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-4 py-2 border border-saffron/20 focus:border-saffron focus:ring-2 focus:ring-saffron/20 bg-background rounded-lg text-sm outline-none transition-all"
+                placeholder="पासवर्ड पुन्हा प्रविष्ट करा"
+                className={inputClass}
               />
             </div>
           </div>
@@ -168,32 +187,29 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-lg text-sm font-semibold text-white bg-saffron hover:bg-saffron/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-saffron transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-md"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-xs sm:text-sm font-semibold font-marathi text-[#0d0906] bg-[var(--dp-gold)] hover:bg-[var(--dp-gold-celestial)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--dp-gold)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md min-h-[44px]"
           >
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>नोंदणी सुरू आहे...</span>
+                <span>नोंदणी होत आहे...</span>
               </>
             ) : (
               <>
                 <UserPlus className="w-4 h-4" />
-                <span>नोंदणी करा (Sign Up)</span>
+                <span>खाते तयार करा (Sign Up)</span>
               </>
             )}
           </button>
         </form>
 
-        {/* Navigation back */}
-        <div className="text-center pt-4 border-t border-saffron/10">
-          <p className="text-xs text-muted-foreground">
-            आधीच नोंदणी केली आहे?{' '}
-            <Link href="/auth/signin" className="font-bold text-saffron hover:underline inline-flex items-center gap-0.5">
-              लॉगिन करा <ArrowRight className="w-3 h-3" />
-            </Link>
-          </p>
+        {/* Existing account link */}
+        <div className="text-center pt-2 border-t border-[var(--dp-rule)]/40 text-xs font-marathi text-[var(--dp-muted)]">
+          <span>आधीच खाते आहे? </span>
+          <Link href="/auth/signin" className="text-[var(--dp-gold)] font-semibold hover:underline">
+            प्रवेश करा (Log In)
+          </Link>
         </div>
-
       </div>
     </div>
   );

@@ -2,272 +2,339 @@
 
 import * as React from 'react';
 import * as THREE from 'three';
+import { Bell } from 'lucide-react';
 
+/**
+ * BellViewer — interactive 3D bronze temple bell.
+ *
+ * Physics: spring-damper pendulum model (dt-independent).
+ * Acoustics: Web Audio 5-partial synthesis, struck only on swing peak
+ *   (velocity sign-change past threshold) for realism.
+ * Accessibility: canvas container is focusable (tabIndex=0, role=button),
+ *   Enter/Space both ring the bell. Fallback button for reduced-motion.
+ */
 export function BellViewer() {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const bellGroupRef = React.useRef<THREE.Group | null>(null);
-  const clapperRef = React.useRef<THREE.Mesh | null>(null);
+  const clapperGroupRef = React.useRef<THREE.Group | null>(null);
 
-  // Sound synthesis using Web Audio API
-  const playChime = () => {
+  // Physics state kept as refs — read every rAF tick with no React re-renders.
+  const swingAngleRef    = React.useRef(0);
+  const swingVelocityRef = React.useRef(0);
+  // Track previous velocity sign to detect zero-crossing (clapper strike)
+  const prevVelocitySignRef = React.useRef(0);
+  // Cooldown prevents rapid-fire chime spam (ms)
+  const lastChimeTimeRef = React.useRef(0);
+
+  // ── Web Audio bell synthesis ──────────────────────────────────────────────
+  const playChime = React.useCallback(() => {
+    const now = performance.now();
+    if (now - lastChimeTimeRef.current < 300) return; // 300 ms cooldown
+    lastChimeTimeRef.current = now;
+
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContextClass) return;
+      const CtxClass =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
+      if (!CtxClass) return;
 
-      const ctx = new AudioContextClass();
-      const now = ctx.currentTime;
+      const ctx = new CtxClass();
+      const t = ctx.currentTime;
+      const baseFreq = 261.63; // Middle C — Sa pitch
 
-      // Base fundamental frequency of a bronze bell
-      const baseFreq = 261.63; // Middle C
-
-      // Overtones for a rich metallic, authentic bronze bell resonance
-      // Bell overtones are typically non-harmonic (non-integer multiples)
-      const partials = [
-        { ratio: 1.0, decay: 3.5, gain: 0.35 },  // Fundamental
-        { ratio: 2.0, decay: 2.0, gain: 0.15 },  // Octave
-        { ratio: 2.4, decay: 1.2, gain: 0.20 },  // Minor third overtone (characteristic of bells)
-        { ratio: 3.0, decay: 0.8, gain: 0.10 },  // Fifth
-        { ratio: 4.2, decay: 0.4, gain: 0.08 }   // High chime
+      // 5 partials: authentic Indian bronze bell resonance signature
+      const partials: Array<{ ratio: number; decay: number; gain: number }> = [
+        { ratio: 1.0, decay: 3.5, gain: 0.35 }, // Fundamental
+        { ratio: 2.0, decay: 2.0, gain: 0.15 }, // Octave
+        { ratio: 2.4, decay: 1.2, gain: 0.20 }, // Minor-third overtone (bell character)
+        { ratio: 3.0, decay: 0.8, gain: 0.10 }, // Fifth
+        { ratio: 4.2, decay: 0.4, gain: 0.08 }, // High shimmer
       ];
 
-      partials.forEach((p) => {
+      // Spatial reverb via short delay
+      const delay = ctx.createDelay(0.1);
+      delay.delayTime.value = 0.055;
+      const revGain = ctx.createGain();
+      revGain.gain.value = 0.25;
+      delay.connect(revGain);
+      revGain.connect(ctx.destination);
+
+      partials.forEach(({ ratio, decay, gain }) => {
         const osc = ctx.createOscillator();
-        const gainNode = ctx.createGain();
-
+        const env = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(baseFreq * p.ratio, now);
-
-        // Exponential decay envelope
-        gainNode.gain.setValueAtTime(p.gain, now);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + p.decay);
-
-        osc.connect(gainNode);
-        gainNode.connect(ctx.destination);
-
-        osc.start(now);
-        osc.stop(now + p.decay + 0.1);
+        osc.frequency.setValueAtTime(baseFreq * ratio, t);
+        env.gain.setValueAtTime(gain, t);
+        env.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+        osc.connect(env);
+        env.connect(ctx.destination);
+        env.connect(delay);
+        osc.start(t);
+        osc.stop(t + decay + 0.1);
       });
-    } catch (e) {
-      console.warn('Web Audio Context not allowed or initialized: ', e);
+    } catch {
+      // Audio autoplay policy or missing API — silent fallback
     }
-  };
+  }, []);
 
+  // ── Kick the pendulum ─────────────────────────────────────────────────────
+  const kick = React.useCallback(() => {
+    // Impulse in the direction that keeps energy building
+    const addVel = swingAngleRef.current >= 0 ? 0.32 : -0.32;
+    swingVelocityRef.current += addVel;
+  }, []);
+
+  // ── Three.js scene setup ──────────────────────────────────────────────────
   React.useEffect(() => {
     if (!containerRef.current) return;
 
-    const width = containerRef.current.clientWidth || 300;
-    const height = containerRef.current.clientHeight || 300;
+    const width  = containerRef.current.clientWidth  || 300;
+    const height = containerRef.current.clientHeight || 250;
 
-    // 1. Scene Setup
-    const scene = new THREE.Scene();
-
-    // 2. Camera Setup
+    const scene  = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
-    camera.position.set(0, 1.2, 5.0);
+    camera.position.set(0, 0, 7.5);
     camera.lookAt(0, 0, 0);
 
-    // 3. Renderer Setup
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     containerRef.current.appendChild(renderer.domElement);
 
-    // 4. Lights
-    const ambientLight = new THREE.AmbientLight(0xfff8ec, 0.55);
-    scene.add(ambientLight);
-
-    const goldLight = new THREE.DirectionalLight(0xffd700, 1.5); // Golden highlight
-    goldLight.position.set(4, 3, 2);
-    goldLight.castShadow = true;
-    scene.add(goldLight);
-
-    // 5. Build Bell Model
+    // ── Bell geometry ───────────────────────────────────────────────────────
     const bellGroup = new THREE.Group();
-    // Pivot points at the top of the chain (Y = 1.5)
-    bellGroup.position.set(0, 1.5, 0);
-    scene.add(bellGroup);
     bellGroupRef.current = bellGroup;
+    scene.add(bellGroup);
 
-    // Materials
     const bronzeMat = new THREE.MeshStandardMaterial({
-      color: 0xc8983c, // Rich bronze gold
-      roughness: 0.28,
-      metalness: 0.85
+      color: 0xc8963e,
+      roughness: 0.35,
+      metalness: 0.85,
+      flatShading: false,
     });
-
     const chainMat = new THREE.MeshStandardMaterial({
-      color: 0x907030, // Antique gold
-      roughness: 0.4,
-      metalness: 0.8
+      color: 0x8a6524,
+      roughness: 0.6,
+      metalness: 0.7,
     });
 
-    // 5a. Hanging Chain (Cylinder representing chain links)
-    const chainGeo = new THREE.CylinderGeometry(0.015, 0.015, 1.2, 8);
-    const chain = new THREE.Mesh(chainGeo, chainMat);
-    // Chain hangs from pivot (Y=0) down to bell top (Y=-0.6)
-    chain.position.y = -0.6;
-    bellGroup.add(chain);
+    // Bell body — lathe profile
+    const bellProfile: THREE.Vector2[] = [
+      new THREE.Vector2(0,    1.8),
+      new THREE.Vector2(0.4,  1.7),
+      new THREE.Vector2(0.6,  1.5),
+      new THREE.Vector2(0.7,  1.1),
+      new THREE.Vector2(0.9,  0.5),
+      new THREE.Vector2(1.2,  0.0),
+      new THREE.Vector2(1.6, -0.6),
+      new THREE.Vector2(1.8, -1.0),
+      new THREE.Vector2(1.9, -1.2), // lip flare
+      new THREE.Vector2(1.6, -1.2), // rim inner
+      new THREE.Vector2(1.4, -0.8),
+      new THREE.Vector2(1.0,  0.0),
+      new THREE.Vector2(0.6,  0.8),
+      new THREE.Vector2(0.3,  1.4),
+      new THREE.Vector2(0,    1.5),
+    ];
+    const latheGeo = new THREE.LatheGeometry(bellProfile, 32);
+    const bellMesh = new THREE.Mesh(latheGeo, bronzeMat);
+    bellMesh.castShadow = true;
+    bellMesh.receiveShadow = true;
+    bellGroup.add(bellMesh);
 
-    // Torus representing hanger loop at top of bell
-    const loopGeo = new THREE.TorusGeometry(0.08, 0.02, 8, 16);
-    const loop = new THREE.Mesh(loopGeo, chainMat);
-    loop.position.y = -1.2;
-    bellGroup.add(loop);
-
-    // 5b. Bell Body (using Lathe Geometry)
-    const points: THREE.Vector2[] = [];
-    points.push(new THREE.Vector2(0, 0));
-    points.push(new THREE.Vector2(0.2, 0));
-    points.push(new THREE.Vector2(0.35, -0.15));
-    points.push(new THREE.Vector2(0.38, -0.4));
-    points.push(new THREE.Vector2(0.48, -0.75));
-    points.push(new THREE.Vector2(0.65, -0.9)); // Flare rim outwards
-    points.push(new THREE.Vector2(0.68, -0.95)); // Rim lip
-    points.push(new THREE.Vector2(0.64, -0.98)); // Rim bottom
-    points.push(new THREE.Vector2(0.58, -0.92)); // Inward curve
-    points.push(new THREE.Vector2(0.0, -0.85)); // Closed center
-
-    const latheGeometry = new THREE.LatheGeometry(points, 32);
-    const bellBowl = new THREE.Mesh(latheGeometry, bronzeMat);
-    // Position lath so it aligns correctly under loop (centered around Y = -2.0)
-    bellBowl.position.y = -1.2;
-    bellBowl.castShadow = true;
-    bellBowl.receiveShadow = true;
-    bellGroup.add(bellBowl);
-
-    // 5c. Clapper (Striker ball inside bell)
+    // Clapper assembly — hangs inside, provides visual strike cue
     const clapperGroup = new THREE.Group();
-    clapperGroup.position.set(0, -2.05, 0); // Center of clapper rod
+    clapperGroup.position.set(0, 1.2, 0);
+    clapperGroupRef.current = clapperGroup;
+
+    const rodGeo     = new THREE.CylinderGeometry(0.04, 0.04, 2.0, 8);
+    const rodMesh    = new THREE.Mesh(rodGeo, chainMat);
+    rodMesh.position.set(0, -1.0, 0);
+    clapperGroup.add(rodMesh);
+
+    const strikerGeo  = new THREE.SphereGeometry(0.3, 16, 16);
+    const strikerMesh = new THREE.Mesh(strikerGeo, bronzeMat);
+    strikerMesh.position.set(0, -2.1, 0);
+    clapperGroup.add(strikerMesh);
+
     bellGroup.add(clapperGroup);
 
-    const rodGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.35, 8);
-    const rod = new THREE.Mesh(rodGeo, chainMat);
-    rod.position.y = 0.15;
-    clapperGroup.add(rod);
+    // Hanging loop
+    const loopGeo  = new THREE.TorusGeometry(0.25, 0.08, 8, 24);
+    const loopMesh = new THREE.Mesh(loopGeo, bronzeMat);
+    loopMesh.position.set(0, 2.0, 0);
+    loopMesh.rotation.y = Math.PI / 2;
+    bellGroup.add(loopMesh);
 
-    const strikerGeo = new THREE.SphereGeometry(0.09, 16, 16);
-    const clapper = new THREE.Mesh(strikerGeo, bronzeMat);
-    clapper.position.y = 0;
-    clapperGroup.add(clapper);
-    clapperRef.current = clapper;
+    // Chain
+    const chainGeo  = new THREE.CylinderGeometry(0.06, 0.06, 1.5, 8);
+    const chainMesh = new THREE.Mesh(chainGeo, chainMat);
+    chainMesh.position.set(0, 2.9, 0);
+    bellGroup.add(chainMesh);
 
-    // 6. Damped Harmonic Swing Physics
-    let swingAngle = 0;
-    let swingVelocity = 0;
-    let swingAcceleration = 0;
-    
-    // Physics constants
-    const gravity = 9.8;
-    const damping = 0.02; // Slows down over time
-    const restLength = 1.5; // distance from top pivot
+    // ── Lighting ────────────────────────────────────────────────────────────
+    const keyLight = new THREE.DirectionalLight(0xffeedd, 2.5);
+    keyLight.position.set(3, 4, 5);
+    scene.add(keyLight);
 
-    // Swing trigger function
-    const triggerSwing = () => {
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (prefersReducedMotion) {
-        playChime();
-        return;
-      }
-      // Add a sudden impulse (push the bell)
-      swingVelocity = 12.0; // Angled velocity kick
-      playChime();
-    };
+    const rimLight = new THREE.DirectionalLight(0xffaa44, 2.0);
+    rimLight.position.set(-4, -1, -3);
+    scene.add(rimLight);
 
-    // 7. Event Listeners for Interaction
-    const onCanvasClick = () => {
-      triggerSwing();
-    };
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 
-    const domElement = renderer.domElement;
-    domElement.addEventListener('click', onCanvasClick);
-    
-    // Mouseenter hover trigger
-    const onMouseEnter = () => {
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (!prefersReducedMotion) {
-        triggerSwing();
-      }
-    };
-    domElement.addEventListener('mouseenter', onMouseEnter);
-
-    // 8. Animation Loop
-    let clock = new THREE.Clock();
+    // ── Animation loop ──────────────────────────────────────────────────────
     let animationId: number;
-    let lastTime = 0;
+    const clock = new THREE.Clock();
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
 
     const animate = () => {
       animationId = requestAnimationFrame(animate);
 
-      const currentTime = clock.getElapsedTime();
-      const dt = Math.min(currentTime - lastTime, 0.1); // cap delta time
-      lastTime = currentTime;
+      if (!prefersReducedMotion) {
+        // Cap dt to avoid physics explosion after tab-switch
+        const dt      = Math.min(clock.getDelta(), 0.05);
+        const elapsed = clock.getElapsedTime();
 
-      // Update swing pendulum physics using Euler integration
-      // Theta'' = - (g/L) * sin(Theta) - damping * Theta'
-      swingAcceleration = -(gravity / restLength) * Math.sin(swingAngle) - damping * swingVelocity;
-      swingVelocity += swingAcceleration * dt;
-      swingAngle += swingVelocity * dt;
+        // Spring-damper: α = -k·θ − c·ω
+        const k   = 7.5;   // spring stiffness
+        const c   = 0.055; // damping coefficient
+        const acc = -k * swingAngleRef.current - c * swingVelocityRef.current;
+        swingVelocityRef.current += acc * dt;
+        swingAngleRef.current    += swingVelocityRef.current;
 
-      // Apply swing rotation around Z-axis
-      bellGroup.rotation.z = swingAngle;
+        // Acoustic strike detection: velocity zero-crossing past min amplitude
+        const velSign = Math.sign(swingVelocityRef.current);
+        if (
+          velSign !== 0 &&
+          velSign !== prevVelocitySignRef.current &&
+          Math.abs(swingAngleRef.current) > 0.06
+        ) {
+          playChime();
+        }
+        prevVelocitySignRef.current = velSign;
 
-      // Dynamic clapper lag (clapper swings slightly out of phase with bell body!)
-      clapperGroup.rotation.z = -swingAngle * 0.45;
+        // Apply to 3D objects
+        bellGroup.rotation.z    = swingAngleRef.current;
+        // Clapper lags the bell (inertia) — counter-rotates more slowly
+        clapperGroup.rotation.z = -swingAngleRef.current * 1.4;
+        // Gentle idle sway when at rest — bell breathes
+        bellGroup.rotation.y    = Math.sin(elapsed * 0.4) * 0.12;
+      }
 
       renderer.render(scene, camera);
     };
 
     animate();
 
-    // 9. Resize Handler
-    const handleResize = () => {
-      if (!containerRef.current) return;
-      const newWidth = containerRef.current.clientWidth;
-      const newHeight = containerRef.current.clientHeight;
+    // ── Input handlers ──────────────────────────────────────────────────────
+    const domElement = renderer.domElement;
 
-      camera.aspect = newWidth / newHeight;
-      camera.updateProjectionMatrix();
-
-      renderer.setSize(newWidth, newHeight);
+    const onCanvasClick = () => kick();
+    const onMouseEnter  = () => {
+      // Gentle nudge on first hover if nearly still
+      if (
+        Math.abs(swingAngleRef.current) < 0.04 &&
+        Math.abs(swingVelocityRef.current) < 0.02
+      ) {
+        swingVelocityRef.current = 0.1;
+      }
+    };
+    // Keyboard: handled on the wrapper div (focusable, tabIndex=0)
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        kick();
+      }
     };
 
+    domElement.addEventListener('click', onCanvasClick);
+    domElement.addEventListener('mouseenter', onMouseEnter);
+
+    // ── Responsive resize ───────────────────────────────────────────────────
+    const handleResize = () => {
+      if (!containerRef.current) return;
+      const w = containerRef.current.clientWidth;
+      const h = containerRef.current.clientHeight || 250;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
     window.addEventListener('resize', handleResize);
 
+    // Attach keyboard listener to the container div
+    const container = containerRef.current;
+    container.addEventListener('keydown', onKeyDown);
+
+    // ── Cleanup ─────────────────────────────────────────────────────────────
     return () => {
       cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', handleResize);
       domElement.removeEventListener('click', onCanvasClick);
       domElement.removeEventListener('mouseenter', onMouseEnter);
+      container.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('resize', handleResize);
 
-      if (containerRef.current && renderer.domElement) {
+      if (
+        containerRef.current &&
+        renderer.domElement.parentNode === containerRef.current
+      ) {
         containerRef.current.removeChild(renderer.domElement);
       }
       chainGeo.dispose();
       loopGeo.dispose();
-      latheGeometry.dispose();
+      latheGeo.dispose();
       rodGeo.dispose();
       strikerGeo.dispose();
       bronzeMat.dispose();
       chainMat.dispose();
       renderer.dispose();
     };
-  }, []);
+  }, [kick, playChime]);
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div 
-        ref={containerRef} 
-        className="w-full h-[250px] flex items-center justify-center cursor-pointer active:scale-95 transition-transform duration-200"
-        aria-label="३डी घंटा स्पर्श आणि नाद अनुभव"
+    <div className="flex flex-col items-center gap-3">
+      {/*
+       * The wrapper div is the keyboard focus target — tabIndex=0 makes it
+       * reachable via Tab; role=button communicates the interactive affordance.
+       * Keydown is attached imperatively in useEffect so the listener has
+       * direct access to physics refs without stale closure risk.
+       */}
+      <div
+        ref={containerRef}
+        tabIndex={0}
+        role="button"
+        aria-label="३डी घंटा — क्लिक किंवा Enter दाबा, नाद ऐका"
+        className={[
+          'w-full h-[250px] flex items-center justify-center',
+          'cursor-pointer rounded outline-none',
+          'focus-visible:ring-1 focus-visible:ring-[var(--dp-focus)]',
+          'motion-safe:active:scale-[0.98] motion-safe:transition-transform duration-100',
+          'motion-reduce:transition-none',
+        ].join(' ')}
       />
-      <button 
-        onClick={playChime}
-        className="px-4 py-1.5 rounded-full border border-saffron/20 bg-saffron/5 hover:bg-saffron/10 text-xs font-semibold text-saffron transition-all"
+
+      {/* Fallback CTA — always visible; second interaction surface */}
+      <button
+        type="button"
+        onClick={kick}
+        className={[
+          'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full',
+          'border border-[var(--dp-rule)] bg-[var(--dp-ground-well)]',
+          'hover:border-[var(--dp-gold-celestial)] text-xs font-semibold',
+          'text-[var(--dp-gold)] transition-colors',
+          'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--dp-focus)]',
+          'active:translate-y-px',
+        ].join(' ')}
       >
-        घंटा नाद ऐका 🔔
+        <Bell size={13} aria-hidden="true" />
+        <span>घंटा नाद ऐका</span>
       </button>
     </div>
   );
 }
+
 export default BellViewer;

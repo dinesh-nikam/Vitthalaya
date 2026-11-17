@@ -23,8 +23,9 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
   return (
     <button
       onClick={toggleTheme}
-      className={`p-2 rounded-lg text-muted-foreground hover:text-saffron hover:bg-saffron/10 transition-colors ${className}`}
+      className={`theme-toggle p-2 rounded-lg text-muted-foreground hover:text-saffron hover:bg-saffron/10 transition-colors ${className}`}
       aria-label={isDark ? 'उजळ मोड बदला' : 'गडद मोड बदला'}
+      data-testid="theme-toggle"
       title={isDark ? 'उजळ मोड' : 'गडद मोड'}
     >
       {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
