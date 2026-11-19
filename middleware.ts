@@ -65,6 +65,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url, { status: 301 });
   }
 
+  // Feature flag check: Paused for safety (Constraint C1)
+  // Extraneous agency template (/luxury/*) is paused unless ENABLE_DESIGN_LAB is explicitly 'true'
+  if (pathname.startsWith('/luxury') && process.env.ENABLE_DESIGN_LAB !== 'true') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/';
+    return NextResponse.redirect(url, { status: 302 });
+  }
+
   const response = NextResponse.next();
 
   // Apply security headers

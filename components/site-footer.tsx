@@ -21,7 +21,11 @@ const FOOTER_LINKS = {
     { href: '/donate', label: 'सहयोग' },
     { href: '/store', label: 'भंडार' },
     { href: '/account', label: 'खाते' },
-    { href: '/luxury', label: 'लक्झरी दालन (Atelier)' },
+  ],
+  legal: [
+    { href: '/privacy', label: 'गोपनीयता धोरण (Privacy)' },
+    { href: '/terms', label: 'वापर नियम (Terms)' },
+    { href: '/grievance', label: 'तक्रार निवारण (DPDP)' },
   ],
 };
 
@@ -68,11 +72,18 @@ export function SiteFooter() {
             </ul>
           </div>
 
-          {/* About Links */}
+          {/* About & Legal Links */}
           <div>
-            <h3 className="text-sm font-bold text-foreground mb-3">बद्दल</h3>
+            <h3 className="text-sm font-bold text-foreground mb-3">बद्दल व कायदेशीर</h3>
             <ul className="space-y-2">
               {FOOTER_LINKS.about.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-sm text-muted-foreground hover:text-saffron transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+              {FOOTER_LINKS.legal.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-muted-foreground hover:text-saffron transition-colors">
                     {link.label}

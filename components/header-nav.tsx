@@ -28,7 +28,6 @@ const PILLAR_LINKS = [
   { href: '/learn', label: 'शिका' },
   { href: '/about', label: 'बद्दल' },
   { href: '/donate', label: 'सहयोग' },
-  { href: '/luxury', label: 'दालन' },
 ];
 
 /**

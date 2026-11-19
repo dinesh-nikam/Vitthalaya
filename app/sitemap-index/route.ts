@@ -6,16 +6,16 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://digitalpandharpur.
 export async function GET() {
   const now = new Date().toISOString();
 
-  // Count total compositions to determine chunks
-  const totalCompositions = await db.composition.count();
+  // Count total compositions to determine chunks (graceful fallback if DB offline)
+  const totalCompositions = await db.composition.count().catch(() => 0);
   const compositionChunks = Math.max(Math.ceil(totalCompositions / SITEMAP_URLS_PER_FILE), 1);
 
   // Count entities
   const [totalSaints, totalCategories, totalFestivals, totalBooks] = await Promise.all([
-    db.saint.count(),
-    db.category.count(),
-    db.festival.count(),
-    db.bookPublication.count({ where: { isPublic: true, status: 'PUBLISHED' } }),
+    db.saint.count().catch(() => 0),
+    db.category.count().catch(() => 0),
+    db.festival.count().catch(() => 0),
+    db.bookPublication.count({ where: { isPublic: true, status: 'PUBLISHED' } }).catch(() => 0),
   ]);
 
   const entries: { loc: string; lastmod?: string }[] = [];

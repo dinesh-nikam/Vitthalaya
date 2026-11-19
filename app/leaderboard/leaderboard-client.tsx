@@ -107,8 +107,8 @@ export default function LeaderboardClient() {
 
               {/* Score */}
               <div className="text-right shrink-0">
-                <div className="text-lg font-bold text-maroon">{user.reputationScore}</div>
-                <div className="text-xs text-muted-foreground">गुण</div>
+                <div className="text-lg font-bold text-maroon">{user.correctionsCount + user.versionsCount}</div>
+                <div className="text-xs text-muted-foreground">सेवा नोंदी</div>
               </div>
 
               <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />

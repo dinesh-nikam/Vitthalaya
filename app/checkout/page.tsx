@@ -106,24 +106,7 @@ export default function CheckoutPage() {
       const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
 
       if (!razorpayKey) {
-        // Dev mode — simulate successful payment
-        console.warn('[Dev] No Razorpay Key — simulating payment success');
-
-        // Mark the order as confirmed by calling the verification endpoint with mock data
-        await fetch('/api/orders/verify-payment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderId: data.orderId,
-            razorpayOrderId: data.razorpayOrderId || `order_mock_${Date.now()}`,
-            razorpayPaymentId: `pay_mock_${Date.now()}`,
-            razorpaySignature: 'mock_signature',
-          }),
-        });
-
-        clearCart();
-        router.push(`/orders/${data.orderId}?token=${encodeURIComponent(data.accessToken || '')}`);
-        return;
+        throw new Error('पेमेंट गेटवे कॉन्फिगरेशन त्रुटी: कृपया नंतर पुन्हा प्रयत्न करा किंवा सहाय्य कक्षाशी संपर्क साधा.');
       }
 
       const options = {

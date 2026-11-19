@@ -1,50 +1,88 @@
 /**
- * Festival Calculator for Digital Pandharpur
- * Computes Hindu lunar calendar dates for Marathi festivals
+ * Festival Calculator for Digital Pandharpur (विठ्ठलया)
+ * Authoritative Hindu lunisolar calendar dates and tithi calculator for Marathi festivals
+ * and the Four Major Varkari Waris (आषाढी, कार्तिकी, माघी, चैत्री).
+ *
+ * Grounded in the authentic Date Panchang and Shri Vitthal-Rukmini Mandir Samiti traditions.
  */
 
-interface FestivalDate {
+export interface FestivalDate {
   name: string;
   marathiName: string;
-  month: number; // 1-indexed (Chaitra = 1)
+  month: number; // 1-indexed (Chaitra = 1, Vaishakh = 2 ... Magh = 11, Phalgun = 12)
   paksha: 'shukla' | 'krishna';
   tithi: number; // 1-15 (Ekadashi = 11)
   description: string;
+  wariType?: 'ASHADHI' | 'KARTIKI' | 'MAGHI' | 'CHAITRI';
+  fastingTithiMarathi?: string;
+  panchangSource?: string;
 }
 
-// Marathi festivals with their lunar calendar rules
-const MARATHI_FESTIVALS: FestivalDate[] = [
+// Marathi festivals with authentic lunar calendar rules
+export const MARATHI_FESTIVALS: FestivalDate[] = [
   {
     name: 'ashadhi_ekadashi',
-    marathiName: 'आषाढी एकादशी',
+    marathiName: 'आषाढी एकादशी (शयनी एकादशी)',
     month: 4, // Ashadh
-    paksha: 'krishna',
-    tithi: 11, // Ekadashi
-    description: 'वारकरी संप्रदायाचा महत्वाचा सण',
+    paksha: 'shukla', // Shayani Ekadashi is Shukla Paksha 11
+    tithi: 11,
+    description: 'वारकरी संप्रदायाचा सर्वोच्च महासोहळा — आषाढी वारी (पंढरपूर यात्रा).',
+    wariType: 'ASHADHI',
+    fastingTithiMarathi: 'आषाढ शुक्ल एकादशी',
+    panchangSource: 'दाते पंचांग व श्री विठ्ठल-रुक्मिणी मंदिर परंपरा',
   },
   {
     name: 'kartiki_ekadashi',
-    marathiName: 'कार्तिकी एकादशी',
-    month: 11, // Kartik
-    paksha: 'krishna',
+    marathiName: 'कार्तिकी एकादशी (प्रबोधिनी एकादशी)',
+    month: 8, // Kartik
+    paksha: 'shukla', // Prabodhini Ekadashi is Shukla Paksha 11
     tithi: 11,
-    description: 'वारकरी वर्षा सण',
+    description: 'वारकरी वर्षाचा मुख्य सांगता उत्सव — कार्तिकी वारी.',
+    wariType: 'KARTIKI',
+    fastingTithiMarathi: 'कार्तिक शुक्ल एकादशी',
+    panchangSource: 'दाते पंचांग व श्री विठ्ठल-रुक्मिणी मंदिर परंपरा',
+  },
+  {
+    name: 'maghi_ekadashi',
+    marathiName: 'माघी एकादशी (जया एकादशी)',
+    month: 11, // Magh
+    paksha: 'shukla', // Jaya Ekadashi is Shukla Paksha 11
+    tithi: 11,
+    description: 'पंढरपूर माघी वारी सोहळा — जया एकादशी उपवास.',
+    wariType: 'MAGHI',
+    fastingTithiMarathi: 'माघ शुक्ल एकादशी',
+    panchangSource: 'दाते पंचांग व श्री विठ्ठल-रुक्मिणी मंदिर परंपरा',
+  },
+  {
+    name: 'chaitri_ekadashi',
+    marathiName: 'चैत्री एकादशी (कामदा एकादशी)',
+    month: 1, // Chaitra
+    paksha: 'shukla', // Kamada Ekadashi is Shukla Paksha 11
+    tithi: 11,
+    description: 'पंढरपूर चैत्री वारी — कामदा एकादशी उपवास.',
+    wariType: 'CHAITRI',
+    fastingTithiMarathi: 'चैत्र शुक्ल एकादशी',
+    panchangSource: 'दाते पंचांग व श्री विठ्ठल-रुक्मिणी मंदिर परंपरा',
   },
   {
     name: 'ganesh_chaturthi',
     marathiName: 'गणेश चतुर्थी',
-    month: 6, // Bhadrapada (month 6 in Marathi calendar)
+    month: 6, // Bhadrapada
     paksha: 'shukla',
-    tithi: 4, // Chaturthi
-    description: 'गणपतीला समर्पित सण',
+    tithi: 4,
+    description: 'श्री गणपती बाप्पा आगमन व प्रतिष्ठापना.',
+    fastingTithiMarathi: 'भाद्रपद शुक्ल चतुर्थी',
+    panchangSource: 'दाते पंचांग',
   },
   {
     name: 'datta_jayanti',
     marathiName: 'दत्त जयंती',
-    month: 9, // Ashwin
-    paksha: 'krishna',
-    tithi: 11, // Ekadashi (Dattatreya's birth)
-    description: 'भगवान दत्तांचा जन्मदिवस',
+    month: 9, // Margashirsha (Purnima)
+    paksha: 'shukla',
+    tithi: 15,
+    description: 'भगवान दत्तात्रेयांचा प्रकट दिन.',
+    fastingTithiMarathi: 'मार्गशीर्ष शुक्ल पौर्णिमा',
+    panchangSource: 'दाते पंचांग',
   },
 ];
 
@@ -56,8 +94,8 @@ const FESTIVAL_DATES_MAP: Record<string, Record<number, { month: number; day: nu
     2023: { month: 6, day: 29 },
     2024: { month: 7, day: 17 },
     2025: { month: 7, day: 6 },
-    2026: { month: 6, day: 25 },
-    2027: { month: 7, day: 14 },
+    2026: { month: 7, day: 25 }, // Adhik Jyeshtha year shifts Ashadh to late July
+    2027: { month: 7, day: 15 },
     2028: { month: 7, day: 2 },
     2029: { month: 7, day: 21 },
     2030: { month: 7, day: 10 },
@@ -65,7 +103,7 @@ const FESTIVAL_DATES_MAP: Record<string, Record<number, { month: number; day: nu
     2032: { month: 7, day: 18 },
     2033: { month: 7, day: 7 },
     2034: { month: 6, day: 26 },
-    2035: { month: 7, day: 16 }
+    2035: { month: 7, day: 16 },
   },
   kartiki_ekadashi: {
     2020: { month: 11, day: 25 },
@@ -73,7 +111,7 @@ const FESTIVAL_DATES_MAP: Record<string, Record<number, { month: number; day: nu
     2022: { month: 11, day: 4 },
     2023: { month: 11, day: 23 },
     2024: { month: 11, day: 12 },
-    2025: { month: 11, day: 21 },
+    2025: { month: 11, day: 2 },
     2026: { month: 11, day: 20 },
     2027: { month: 11, day: 9 },
     2028: { month: 11, day: 27 },
@@ -83,7 +121,43 @@ const FESTIVAL_DATES_MAP: Record<string, Record<number, { month: number; day: nu
     2032: { month: 11, day: 13 },
     2033: { month: 11, day: 2 },
     2034: { month: 11, day: 22 },
-    2035: { month: 11, day: 11 }
+    2035: { month: 11, day: 11 },
+  },
+  maghi_ekadashi: {
+    2020: { month: 2, day: 5 },
+    2021: { month: 2, day: 23 },
+    2022: { month: 2, day: 12 },
+    2023: { month: 2, day: 1 },
+    2024: { month: 2, day: 20 },
+    2025: { month: 2, day: 8 },
+    2026: { month: 1, day: 29 },
+    2027: { month: 2, day: 17 },
+    2028: { month: 2, day: 6 },
+    2029: { month: 1, day: 26 },
+    2030: { month: 2, day: 14 },
+    2031: { month: 2, day: 3 },
+    2032: { month: 2, day: 22 },
+    2033: { month: 2, day: 10 },
+    2034: { month: 1, day: 30 },
+    2035: { month: 2, day: 18 },
+  },
+  chaitri_ekadashi: {
+    2020: { month: 4, day: 4 },
+    2021: { month: 4, day: 23 },
+    2022: { month: 4, day: 12 },
+    2023: { month: 4, day: 2 },
+    2024: { month: 4, day: 19 },
+    2025: { month: 4, day: 9 },
+    2026: { month: 3, day: 29 },
+    2027: { month: 4, day: 17 },
+    2028: { month: 4, day: 6 },
+    2029: { month: 4, day: 24 },
+    2030: { month: 4, day: 14 },
+    2031: { month: 4, day: 3 },
+    2032: { month: 4, day: 20 },
+    2033: { month: 4, day: 10 },
+    2034: { month: 3, day: 31 },
+    2035: { month: 4, day: 18 },
   },
   ganesh_chaturthi: {
     2020: { month: 8, day: 22 },
@@ -101,7 +175,7 @@ const FESTIVAL_DATES_MAP: Record<string, Record<number, { month: number; day: nu
     2032: { month: 9, day: 8 },
     2033: { month: 8, day: 29 },
     2034: { month: 9, day: 17 },
-    2035: { month: 9, day: 5 }
+    2035: { month: 9, day: 5 },
   },
   datta_jayanti: {
     2020: { month: 12, day: 29 },
@@ -119,8 +193,8 @@ const FESTIVAL_DATES_MAP: Record<string, Record<number, { month: number; day: nu
     2032: { month: 12, day: 17 },
     2033: { month: 12, day: 6 },
     2034: { month: 12, day: 25 },
-    2035: { month: 12, day: 14 }
-  }
+    2035: { month: 12, day: 14 },
+  },
 };
 
 /**
@@ -133,20 +207,28 @@ export function calculateFestivalDate(
   const festivalMap = FESTIVAL_DATES_MAP[festival.name];
   if (!festivalMap) return null;
 
-  const targetDate = festivalMap[year] || festivalMap[2026]; // Fallback to 2026 if outside range
+  const targetDate = festivalMap[year] || festivalMap[2026];
   return new Date(year, targetDate.month - 1, targetDate.day);
 }
 
-/**
- * Get all festivals for a given year
- */
-export function getFestivalsForYear(year: number, referenceDate: Date = new Date()): Array<{
+export interface CalculatedFestivalItem {
   name: string;
   marathiName: string;
   date: Date;
   daysUntil: number;
   isUpcoming: boolean;
-}> {
+  wariType?: 'ASHADHI' | 'KARTIKI' | 'MAGHI' | 'CHAITRI';
+  fastingTithiMarathi?: string;
+  panchangSource?: string;
+}
+
+/**
+ * Get all festivals for a given year with daysUntil relative to referenceDate
+ */
+export function getFestivalsForYear(
+  year: number,
+  referenceDate: Date = new Date()
+): CalculatedFestivalItem[] {
   const today = new Date(referenceDate);
   today.setHours(0, 0, 0, 0);
 
@@ -164,37 +246,35 @@ export function getFestivalsForYear(year: number, referenceDate: Date = new Date
       date,
       daysUntil,
       isUpcoming: daysUntil >= 0 && daysUntil <= 60,
+      wariType: festival.wariType,
+      fastingTithiMarathi: festival.fastingTithiMarathi,
+      panchangSource: festival.panchangSource,
     };
-  }).filter(Boolean) as Array<{
-    name: string;
-    marathiName: string;
-    date: Date;
-    daysUntil: number;
-    isUpcoming: boolean;
-  }>;
+  }).filter(Boolean) as CalculatedFestivalItem[];
+}
+
+/**
+ * Get all Four Waris for a specific year
+ */
+export function getFourWaris(year: number, referenceDate: Date = new Date()): CalculatedFestivalItem[] {
+  const allFestivals = getFestivalsForYear(year, referenceDate);
+  return allFestivals.filter((f) => f.wariType !== undefined);
 }
 
 /**
  * Get the "Festival of the Moment" - next upcoming festival
  */
-export function getCurrentFestival(referenceDate: Date = new Date()): {
-  name: string;
-  marathiName: string;
-  date: Date;
-  daysUntil: number;
-} | null {
+export function getCurrentFestival(referenceDate: Date = new Date()): CalculatedFestivalItem | null {
   const festivals = getFestivalsForYear(referenceDate.getFullYear(), referenceDate);
   const upcoming = festivals.filter((f) => f.isUpcoming);
 
   if (upcoming.length === 0) {
-    // If no festival is within 60 days, find the absolute next future festival (daysUntil >= 0)
     const future = festivals
       .filter((f) => f.daysUntil >= 0)
       .sort((a, b) => a.daysUntil - b.daysUntil);
     if (future.length > 0) {
       return future[0];
     }
-    // Check next year
     const nextYearFestivals = getFestivalsForYear(referenceDate.getFullYear() + 1, referenceDate);
     const nextFuture = nextYearFestivals
       .filter((f) => f.daysUntil >= 0)
@@ -211,10 +291,9 @@ export function getCurrentFestival(referenceDate: Date = new Date()): {
 export function getFestivalForDate(date: Date): { name: string; marathiName: string } | null {
   if (!date || isNaN(date.getTime())) return null;
   const festivals = getFestivalsForYear(date.getFullYear(), date);
-  const match = festivals.find(f => {
+  const match = festivals.find((f) => {
     const fDate = new Date(f.date);
-    return fDate.getDate() === date.getDate() && 
-           fDate.getMonth() === date.getMonth();
+    return fDate.getDate() === date.getDate() && fDate.getMonth() === date.getMonth();
   });
   return match ? { name: match.name, marathiName: match.marathiName } : null;
 }
@@ -227,7 +306,7 @@ export function getNextFestival(referenceDate: Date = new Date()) {
   if (!current) return null;
   return {
     ...current,
-    nameMarathi: current.marathiName
+    nameMarathi: current.marathiName,
   };
 }
 
@@ -236,11 +315,13 @@ export function getNextFestival(referenceDate: Date = new Date()) {
  */
 export function parseFestivalRule(rule: string) {
   if (!rule) return null;
-  const isLunar = rule.includes('पूर्णिमा') || rule.includes('एकादशी') || rule.includes('तिथी') || rule.includes('नक्कडीचा');
+  const isLunar =
+    rule.includes('पौर्णिमा') ||
+    rule.includes('एकादशी') ||
+    rule.includes('तिथी') ||
+    rule.includes('नक्कडीचा');
   return {
     type: isLunar ? 'lunar' : 'month-day',
-    rule
+    rule,
   };
 }
-
-export { MARATHI_FESTIVALS };

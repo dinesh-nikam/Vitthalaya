@@ -47,33 +47,22 @@ export async function recordAuditLog(
   try {
     const target = client?.auditLog ?? (db as any)?.auditLog;
     if (target?.create) {
-      try {
-        await target.create({
-          data: {
-            actorId: input.actorId,
-            action: input.action,
-            entityType: input.entityType,
-            entityId: input.entityId,
-            before: input.before !== undefined ? JSON.stringify(input.before) : null,
-            after: input.after !== undefined ? JSON.stringify(input.after) : null,
-            metadata: input.metadata !== undefined ? JSON.stringify(input.metadata) : null,
-          },
-        });
-        return;
-      } catch (err: any) {
-        if (err?.message?.includes('does not exist on active client')) {
-          console.log(
-            `[Audit] Recorded (in-memory): ${input.action} ${input.entityType}:${input.entityId} by actor:${input.actorId ?? 'system'}`
-          );
-          return;
-        }
-        throw err;
-      }
-    } else {
-      console.log(
-        `[Audit] ${input.action} ${input.entityType}:${input.entityId} by actor:${input.actorId ?? 'system'}`
-      );
+      await target.create({
+        data: {
+          actorId: input.actorId,
+          action: input.action,
+          entityType: input.entityType,
+          entityId: input.entityId,
+          before: input.before !== undefined ? JSON.stringify(input.before) : null,
+          after: input.after !== undefined ? JSON.stringify(input.after) : null,
+          metadata: input.metadata !== undefined ? JSON.stringify(input.metadata) : null,
+        },
+      });
+      return;
     }
+    console.log(
+      `[Audit] ${input.action} ${input.entityType}:${input.entityId} by actor:${input.actorId ?? 'system'}`
+    );
   } catch (err) {
     console.error(
       `🔴 [Audit] Failed to record audit log for ${input.action} ${input.entityType}:${input.entityId}`,

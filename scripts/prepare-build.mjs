@@ -31,7 +31,7 @@ if (fs.existsSync(schemaPath)) {
 // ── 2. Run Prisma Generate ──────────────────────────────────────────────────
 console.log('[Build] Generating Prisma Client...');
 const isBun = typeof Bun !== 'undefined' || process.versions.bun != null;
-const npxCmd = isBun ? 'bunx prisma' : 'npx prisma';
+const npxCmd = isBun ? 'bunx prisma' : 'npx --yes prisma';
 
 try {
   execSync(`${npxCmd} generate`, { stdio: 'inherit' });

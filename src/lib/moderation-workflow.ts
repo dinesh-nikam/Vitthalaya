@@ -178,6 +178,32 @@ export async function submitPeerVote(
     throw new Error('You have already reviewed this item.');
   }
 
+  // Conflict of Interest Guard: Authors cannot vote on their own submissions
+  let submitterId: string | null = null;
+  if (item.sourceType === 'upload' || item.uploadedFileId) {
+    const file = await db.uploadedFile.findUnique({
+      where: { id: item.uploadedFileId || item.sourceId },
+      select: { userId: true },
+    });
+    submitterId = file?.userId || null;
+  } else if (item.sourceType === 'ocr') {
+    const manuscript = await db.manuscriptUpload.findUnique({
+      where: { id: item.sourceId },
+      select: { volunteerId: true },
+    });
+    submitterId = manuscript?.volunteerId || null;
+  } else if (item.sourceType === 'suggestion') {
+    const suggestion = await db.correctionSuggestion.findUnique({
+      where: { id: item.sourceId },
+      select: { userId: true },
+    });
+    submitterId = suggestion?.userId || null;
+  }
+
+  if (submitterId && reviewerId === submitterId) {
+    throw new Error('Authors are not permitted to review or vote on their own submissions.');
+  }
+
   // 3. Log the review
   await db.moderationReview.create({
     data: {
@@ -368,6 +394,20 @@ async function promoteAndPublish(item: any, approvedById?: string | null): Promi
       compositionId = comp.id;
       isNewComposition = true;
 
+      // Create initial version snapshot
+      await tx.compositionVersion.create({
+        data: {
+          compositionId: comp.id,
+          versionNumber: 1,
+          titleMarathi: comp.titleMarathi,
+          titleTranslit: comp.titleTranslit,
+          fullText: comp.fullText,
+          meaning: comp.meaning,
+          changeReason: 'Initial verified composition creation from moderation queue',
+          createdByUserId: submitterId,
+        },
+      });
+
       // Update upload status (try UploadedFile first, fallback to ManuscriptUpload)
       if (item.uploadedFileId) {
         await tx.uploadedFile.update({
@@ -388,6 +428,41 @@ async function promoteAndPublish(item: any, approvedById?: string | null): Promi
       if (suggestion) {
         compositionId = suggestion.compositionId;
         submitterId = suggestion.userId;
+
+        const currentComp = await tx.composition.findUnique({
+          where: { id: suggestion.compositionId },
+          select: {
+            id: true,
+            titleMarathi: true,
+            titleTranslit: true,
+            fullText: true,
+            meaning: true,
+          },
+        });
+
+        if (currentComp) {
+          const maxVersion = await tx.compositionVersion.findFirst({
+            where: { compositionId: currentComp.id },
+            orderBy: { versionNumber: 'desc' },
+            select: { versionNumber: true },
+          });
+          const nextVersion = (maxVersion?.versionNumber ?? 0) + 1;
+
+          await tx.compositionVersion.create({
+            data: {
+              compositionId: currentComp.id,
+              versionNumber: nextVersion,
+              titleMarathi: currentComp.titleMarathi,
+              titleTranslit: currentComp.titleTranslit,
+              fullText: currentComp.fullText,
+              meaning: currentComp.meaning,
+              changeReason: `Approved suggestion ${suggestion.id}: updated ${suggestion.fieldPath}`,
+              createdByUserId: submitterId,
+              correctionId: suggestion.id,
+            },
+          });
+        }
+
         await tx.composition.update({
           where: { id: suggestion.compositionId },
           data: {

@@ -1,10 +1,21 @@
 import * as React from 'react';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/src/lib/auth';
+import { redirect } from 'next/navigation';
 import { db } from '@/src/db/client';
 import { FileText, CheckCircle2, AlertCircle, Clock, UploadCloud } from 'lucide-react';
 
 export const revalidate = 0;
 
 export default async function ManuscriptsAdminPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    redirect('/login');
+  }
+  if ((session.user as { role?: string }).role !== 'ADMIN') {
+    redirect('/');
+  }
+
   const uploads = await db.manuscriptUpload.findMany({
     orderBy: { createdAt: 'desc' },
     take: 30,

@@ -6,6 +6,7 @@
 
 import { db } from '../db/client';
 import { getEmbedding, getEmbeddingsBatch } from './embeddings';
+import { TRANSLITERATION_MAP } from './search-transliteration';
 
 const OPENSEARCH_URL = process.env.OPENSEARCH_URL || 'http://localhost:9200';
 const OPENSEARCH_USER = process.env.OPENSEARCH_USER || 'admin';
@@ -38,8 +39,13 @@ export interface SearchDocument {
 export function transliterateLatinToMarathi(query: string): string {
   const lowercaseQuery = query.toLowerCase().trim();
   
-  // 1. Direct dictionary matches for common names & terms
-  const dictionary: Record<string, string> = {
+  // 1. Direct dictionary matches for common names & terms from centralized map
+  if (TRANSLITERATION_MAP[lowercaseQuery]) {
+    return TRANSLITERATION_MAP[lowercaseQuery];
+  }
+
+  // 2. Direct dictionary matches for common local terms
+  const localDictionary: Record<string, string> = {
     'vitthal': 'विठ्ठल',
     'vithoba': 'विठोबा',
     'pandurang': 'पांडुरंग',
@@ -69,59 +75,15 @@ export function transliterateLatinToMarathi(query: string): string {
     'dev': 'देव',
     'hari': 'हरी',
     'kirtan': 'कीर्तन',
-    'varkari': 'वारकरी'
+    'varkari': 'वारकरी',
   };
 
-  if (dictionary[lowercaseQuery]) {
-    return dictionary[lowercaseQuery];
+  if (localDictionary[lowercaseQuery]) {
+    return localDictionary[lowercaseQuery];
   }
 
-  // 2. Fallback rule-based transliteration mapping (simple phonetic transliterator)
-  let result = lowercaseQuery;
-  const rules: [RegExp, string][] = [
-    [/ksh/g, 'क्ष'],
-    [/gy/g, 'ज्ञ'],
-    [/dny/g, 'ज्ञ'],
-    [/sh/g, 'श'],
-    [/ch/g, 'च'],
-    [/bh/g, 'भ'],
-    [/dh/g, 'ध'],
-    [/gh/g, 'घ'],
-    [/kh/g, 'ख'],
-    [/ph/g, 'फ'],
-    [/th/g, 'थ'],
-    [/jh/g, 'झ'],
-    [/a/g, 'ा'],
-    [/i/g, 'ि'],
-    [/u/g, 'ु'],
-    [/e/g, 'े'],
-    [/o/g, 'ो'],
-    [/k/g, 'क'],
-    [/g/g, 'ग'],
-    [/j/g, 'ज'],
-    [/t/g, 'त'],
-    [/d/g, 'द'],
-    [/n/g, 'न'],
-    [/p/g, 'प'],
-    [/b/g, 'ब'],
-    [/m/g, 'म'],
-    [/y/g, 'य'],
-    [/r/g, 'र'],
-    [/l/g, 'ल'],
-    [/v/g, 'व'],
-    [/w/g, 'व'],
-    [/h/g, 'ह'],
-    [/s/g, 'स'],
-  ];
-
-  for (const [regex, replacement] of rules) {
-    result = result.replace(regex, replacement);
-  }
-
-  // Strip trailing vowel markers that don't fit Marathi pronunciation well
-  result = result.replace(/[ािुेो]$/, '');
-
-  return result;
+  // Fallback: return trimmed original query (avoid naïve regex that corrupts Devanagari)
+  return lowercaseQuery;
 }
 
 /**

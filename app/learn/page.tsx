@@ -31,7 +31,7 @@ const CONCEPT_KEYWORDS: Array<{ keyword: string }> = [
 
 export default async function LearnPage() {
   // ─── Timeline: real saints from the database ──────────────────────────
-  const saints = await db.saint.findMany({
+  const saints = (await db.saint.findMany({
     select: {
       nameMarathi: true,
       nameTranslit: true,
@@ -40,24 +40,24 @@ export default async function LearnPage() {
       biography: true,
       _count: { select: { compositions: true } },
     },
-  });
-  const timeline: LearnSaint[] = saints
-    .map((s) => ({
+  }).catch(() => [])) || [];
+  const timeline: LearnSaint[] = (saints || [])
+    .map((s: any) => ({
       century: s.period ?? '',
       saint: s.nameMarathi,
       detail: s.biography ?? '',
       slug: s.slug,
-      compositionCount: s._count.compositions,
+      compositionCount: s._count?.compositions ?? 0,
     }))
     .sort((a, b) => centuryToNumber(a.century) - centuryToNumber(b.century));
 
   // ─── Traditions: real composition-type counts with search links ──────
-  const byType = await db.composition.groupBy({
+  const byType = (await db.composition.groupBy({
     by: ['type'],
     _count: { _all: true },
-  });
+  }).catch(() => [])) || [];
   const countFor = (type: string): number =>
-    byType.find((g) => g.type === type)?._count._all ?? 0;
+    (Array.isArray(byType) ? byType : []).find((g: any) => g.type === type)?._count?._all ?? 0;
 
   const traditions: LearnTradition[] = [
     { title: 'अभंग', desc: 'संत तुकाराम, ज्ञानेश्वर, नामदेव आणि इतर संतांचे अभंग — वारकरी संप्रदायाचा गाभा.', count: countFor('ABHANG'), searchQuery: 'अभंग' },

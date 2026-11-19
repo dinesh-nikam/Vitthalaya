@@ -407,10 +407,15 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  const compositions = await db.composition.findMany({
-    take: 50,
-    select: { slug: true },
-    orderBy: { updatedAt: 'desc' },
-  });
-  return compositions.map((c) => ({ slug: c.slug }));
+  try {
+    const compositions = await db.composition.findMany({
+      take: 50,
+      select: { slug: true },
+      orderBy: { updatedAt: 'desc' },
+    });
+    return (compositions || []).map((c: { slug: string }) => ({ slug: c.slug }));
+  } catch (error) {
+    console.warn('⚠️ Unable to prefetch static abhang slugs during build:', error);
+    return [];
+  }
 }

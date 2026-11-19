@@ -696,6 +696,25 @@ export async function reviewAndFixCatalog(
             if (plan.newAlternateTitles) updateData.alternateTitles = plan.newAlternateTitles;
             if (plan.newSaintId) updateData.saintId = plan.newSaintId;
 
+            const maxVersion = await prisma.compositionVersion.findFirst({
+              where: { compositionId: comp.id },
+              orderBy: { versionNumber: 'desc' },
+              select: { versionNumber: true },
+            });
+            const nextVersion = (maxVersion?.versionNumber ?? 0) + 1;
+
+            await prisma.compositionVersion.create({
+              data: {
+                compositionId: comp.id,
+                versionNumber: nextVersion,
+                titleMarathi: comp.titleMarathi,
+                titleTranslit: comp.titleTranslit,
+                fullText: comp.fullText,
+                meaning: comp.meaning,
+                changeReason: `Automated review fix: issues [${issues.map((i) => i.type).join(', ')}]`,
+              },
+            });
+
             await prisma.composition.update({
               where: { id: comp.id },
               data: updateData,

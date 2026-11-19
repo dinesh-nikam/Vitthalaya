@@ -211,17 +211,20 @@ export const client = {
         }
       }
 
-      const row = sqliteDb
-        .query(
-          `SELECT c.*, s.name_marathi as saint_name_marathi, s.name_transliteration as saint_name_transliteration,
+      let sql = `SELECT c.*, s.name_marathi as saint_name_marathi, s.name_transliteration as saint_name_transliteration,
                   s.slug as saint_slug, d.name_marathi as deity_name_marathi
            FROM compositions c
            LEFT JOIN saints s ON c.saint_id = s.id
-           LEFT JOIN deities d ON c.deity_id = d.id
-           WHERE (c.id = ? OR c.slug = ?)
-           LIMIT 1`
-        )
-        .get(id || slug || '', slug || id || '') as Record<string, unknown> | undefined;
+           LEFT JOIN deities d ON c.deity_id = d.id`;
+      let row: Record<string, unknown> | undefined;
+
+      if (id || slug) {
+        sql += ` WHERE (c.id = ? OR c.slug = ?) LIMIT 1`;
+        row = sqliteDb.query(sql).get(id || slug || '', slug || id || '') as Record<string, unknown> | undefined;
+      } else {
+        sql += ` LIMIT 1`;
+        row = sqliteDb.query(sql).get() as Record<string, unknown> | undefined;
+      }
 
       if (!row) return null;
 

@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/src/db/client';
+import { requireAdmin } from '@/src/lib/require-admin';
 import { preprocessImage, runOcr } from '@/src/lib/ocr';
 import { extractDevanagari, normalizeForComparison } from '@/src/canonical/normalization';
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireAdmin();
+    if ('error' in auth) return auth.error;
+
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     const uploadId = formData.get('uploadId') as string | null;

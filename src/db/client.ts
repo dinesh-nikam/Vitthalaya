@@ -1,4 +1,27 @@
-const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+const isBuildPhase =
+  process.env.NEXT_PHASE === 'phase-production-build' ||
+  process.env.NEXT_PHASE === 'phase-export' ||
+  process.env.npm_lifecycle_event === 'build' ||
+  process.env.NEXT_IS_BUILD === 'true' ||
+  Boolean(process.env.VERCEL && !process.env.VERCEL_ENV);
+
+function isInitializationError(err: unknown): boolean {
+  if (!err) return false;
+  const name = (err as any).name || '';
+  const message = (err instanceof Error ? err.message : String(err)).toLowerCase();
+  return (
+    name === 'PrismaClientInitializationError' ||
+    message.includes('initializationerror') ||
+    message.includes('codeparamsroutingfailed') ||
+    message.includes('routingfailed') ||
+    (message.includes('cluster') && message.includes('not found')) ||
+    message.includes('cannot reach') ||
+    message.includes('database server') ||
+    message.includes('connection refused') ||
+    message.includes('econnrefused') ||
+    message.includes('etimedout')
+  );
+}
 
 // Environment variable validation helper
 const validateEnv = () => {
@@ -133,14 +156,19 @@ async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
 
 // Helper to define fallback values
 function getFallbackValue(method: string): any {
-  if (method.startsWith('findMany') || method.startsWith('createMany') || method.startsWith('updateMany')) {
+  if (
+    method.startsWith('findMany') ||
+    method.startsWith('createMany') ||
+    method.startsWith('updateMany') ||
+    method.startsWith('groupBy')
+  ) {
     return [];
   }
   if (method.startsWith('count')) {
     return 0;
   }
-  if (method.startsWith('aggregate') || method.startsWith('groupBy')) {
-    return {};
+  if (method.startsWith('aggregate')) {
+    return { _count: { _all: 0 } };
   }
   return null;
 }
@@ -187,6 +215,13 @@ const createResilientDb = () => {
               if (typeof originalMethod === 'function') {
                 return async (...args: any[]) => {
                   const context = `${String(modelName)}.${String(method)}`;
+                  const methodName = String(method);
+                  const isRead =
+                    methodName.startsWith('find') ||
+                    methodName.startsWith('count') ||
+                    methodName.startsWith('groupBy') ||
+                    methodName.startsWith('aggregate');
+
                   try {
                     return await withRetry(
                       () => originalMethod.apply(modelObj, args),
@@ -194,8 +229,8 @@ const createResilientDb = () => {
                     );
                   } catch (err) {
                     console.error(`🔴 Database connection/query error on ${context}:`, err);
-                    if (isBuildPhase) {
-                      return getFallbackValue(String(method));
+                    if (isBuildPhase || (isRead && isInitializationError(err))) {
+                      return getFallbackValue(methodName);
                     }
                     throw err;
                   }
@@ -213,8 +248,15 @@ const createResilientDb = () => {
         get(modelObj, method) {
           return async (..._args: any[]) => {
             console.warn(`⚠️ [Production Readiness] Fallback stub model method called: ${String(modelName)}.${String(method)}`);
-            if (isBuildPhase) {
-              return getFallbackValue(String(method));
+            const methodName = String(method);
+            const isRead =
+              methodName.startsWith('find') ||
+              methodName.startsWith('count') ||
+              methodName.startsWith('groupBy') ||
+              methodName.startsWith('aggregate');
+
+            if (isBuildPhase || isRead) {
+              return getFallbackValue(methodName);
             }
             throw new Error(`[Database Client Error] Model '${String(modelName)}' does not exist on active client.`);
           };

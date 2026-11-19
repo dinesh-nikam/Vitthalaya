@@ -5,11 +5,11 @@ import LeaderboardClient from './leaderboard-client';
 import '@/app/homepage.css';
 
 export const metadata = {
-  title: 'योगदानकर्ते व साधक लीडरबोर्ड | डिजिटल पंढरपूर',
+  title: 'साहित्य सेवा व संपादकीय नोंद | डिजिटल पंढरपूर',
   description:
     'डिजिटल पंढरपूर मधील सर्वोच्च योगदानकर्ते — संत साहित्य जतन व शुद्धीकरण करणारे समर्पित वारकरी साधक.',
   openGraph: {
-    title: 'योगदानकर्ते लीडरबोर्ड',
+    title: 'साहित्य सेवा नोंद',
     description: 'संत साहित्य जतन करण्यात मदत करणारे आमचे सर्वोच्च योगदानकर्ते',
     locale: 'mr_IN',
   },

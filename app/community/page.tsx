@@ -40,30 +40,34 @@ export default async function CommunityPage() {
     recentCorrections,
     topContributors,
   ] = await Promise.all([
-    db.user.count(),
-    db.correctionSuggestion.count(),
-    db.compositionVersion.count(),
-    db.composition.count({ where: { reviewed: true } }),
-    db.correctionSuggestion.findMany({
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: { select: { name: true, imageUrl: true } },
-        composition: { select: { titleMarathi: true, slug: true } },
-      },
-    }),
-    db.user.findMany({
-      take: 5,
-      orderBy: { reputationScore: 'desc' },
-      where: { reputationScore: { gt: 0 } },
-      select: {
-        id: true,
-        name: true,
-        imageUrl: true,
-        reputationScore: true,
-        _count: { select: { corrections: true, versions: true } },
-      },
-    }),
+    db.user.count().catch(() => 0),
+    db.correctionSuggestion.count().catch(() => 0),
+    db.compositionVersion.count().catch(() => 0),
+    db.composition.count({ where: { reviewed: true } }).catch(() => 0),
+    db.correctionSuggestion
+      .findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: { select: { name: true, imageUrl: true } },
+          composition: { select: { titleMarathi: true, slug: true } },
+        },
+      })
+      .catch(() => []),
+    db.user
+      .findMany({
+        take: 5,
+        orderBy: { reputationScore: 'desc' },
+        where: { reputationScore: { gt: 0 } },
+        select: {
+          id: true,
+          name: true,
+          imageUrl: true,
+          reputationScore: true,
+          _count: { select: { corrections: true, versions: true } },
+        },
+      })
+      .catch(() => []),
   ]);
 
   return (

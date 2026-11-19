@@ -1604,6 +1604,24 @@ model BackupRecord {
   @@map("backup_records")
 }
 
+/// Immutable audit trail for editorial and administrative actions
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?  @map("actor_id")
+  action     String   @map("action")
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  before     String?  @map("before")
+  after      String?  @map("after")
+  metadata   String?  @map("metadata")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@index([actorId])
+  @@map("audit_logs")
+}
+
 enum CompositionType {
   ABHANG
   BHAJAN

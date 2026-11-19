@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Share2, Copy, Printer, Moon, Sun, Type, Music, ChevronUp, ChevronDown, Download, Check, X, ListPlus, ListMusic } from 'lucide-react';
+import { Share2, Copy, Printer, Moon, Sun, Type, Music, ChevronUp, ChevronDown, Download, Check, X, ListPlus, ListMusic, MessageCircle } from 'lucide-react';
 import { BookmarkButton } from './bookmark-button';
 import { BellLikeButton } from './bell-like-button';
 import { FlowerPetals } from './flower-petals';
@@ -50,6 +50,26 @@ export function CompositionReader({
   const [lineHeight, setLineHeight] = React.useState(1.8);
   const { isDark, setTheme } = useTheme();
   const [showPrefPanel, setShowPrefPanel] = React.useState(false);
+
+  // Restore persistent reader font size across sessions
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('dp_reader_font_size');
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if (parsed >= 16 && parsed <= 36) {
+          setFontSize(parsed);
+        }
+      }
+    } catch {}
+  }, []);
+
+  const updateFontSize = (newSize: number) => {
+    setFontSize(newSize);
+    try {
+      localStorage.setItem('dp_reader_font_size', String(newSize));
+    } catch {}
+  };
 
   // Status indicators
   const [copied, setCopied] = React.useState(false);
@@ -287,6 +307,21 @@ export function CompositionReader({
             <span>{shared ? 'दुवा कॉपी केला!' : 'शेयर'}</span>
           </button>
 
+          {/* WhatsApp 1-Click Share Button (Quick Win QW-02) */}
+          <button
+            onClick={() => {
+              const firstStanza = fullText.split('\n\n')[0] || fullText.slice(0, 160);
+              const text = `॥ ${titleMarathi} ॥\n\n${firstStanza}\n\n— ${saint?.nameMarathi || 'वारकरी संत साहित्य'}\n\nसंपूर्ण अभंग वाचा: ${window.location.href}`;
+              const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+              window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-sm text-emerald-700 dark:text-emerald-400 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            title="व्हॉट्सॲपवर अभंग पाठवा"
+          >
+            <MessageCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span>व्हॉट्सॲप</span>
+          </button>
+
           {/* Copy Button */}
           <button
             onClick={handleCopy}
@@ -432,19 +467,23 @@ export function CompositionReader({
               </div>
             </div>
 
-            {/* Font Size Adjuster */}
+            {/* Font Size Adjuster with 48px accessible touch targets */}
             <div className="space-y-1.5">
               <label className="text-muted-foreground font-medium">अक्षर आकार (Size: {fontSize}px)</label>
-              <div className="flex gap-1">
+              <div className="flex gap-2">
                 <button
-                  onClick={() => setFontSize(Math.max(16, fontSize - 2))}
-                  className="flex-1 px-2 py-1 bg-background border border-border text-foreground rounded hover:bg-muted font-bold"
+                  type="button"
+                  onClick={() => updateFontSize(Math.max(16, fontSize - 2))}
+                  aria-label="फॉन्ट आकार कमी करा"
+                  className="flex-1 min-h-[48px] px-3 py-2 bg-background border border-border text-foreground rounded-lg hover:bg-muted font-bold text-base flex items-center justify-center focus-visible:ring-2 focus-visible:ring-saffron"
                 >
                   A-
                 </button>
                 <button
-                  onClick={() => setFontSize(Math.min(36, fontSize + 2))}
-                  className="flex-1 px-2 py-1 bg-background border border-border text-foreground rounded hover:bg-muted font-bold"
+                  type="button"
+                  onClick={() => updateFontSize(Math.min(36, fontSize + 2))}
+                  aria-label="फॉन्ट आकार वाढवा"
+                  className="flex-1 min-h-[48px] px-3 py-2 bg-background border border-border text-foreground rounded-lg hover:bg-muted font-bold text-base flex items-center justify-center focus-visible:ring-2 focus-visible:ring-saffron"
                 >
                   A+
                 </button>
