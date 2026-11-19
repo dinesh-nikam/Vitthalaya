@@ -1,5 +1,4 @@
-/* Google Fonts - Authentic Devanagari Calligraphy & Display Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Rozha+One&family=Tiro+Devanagari+Marathi:ital@0;1&family=Yatra+One&display=swap');
+/* Authentic Devanagari Calligraphy & Display Fonts loaded via preconnected links in layout.tsx */
 @import './tailwind.custom.css';
 
 @tailwind base;
@@ -382,3 +381,87 @@
 .font-manthan {
   font-family: var(--font-manthan);
 }
+
+/* ==========================================================================
+   Print Stylesheet — Single-Page Pilgrim Route Sheet & Liturgy (A4 Optimized)
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm 8mm 10mm;
+  }
+
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #111 !important;
+    font-size: 10pt !important;
+    line-height: 1.35 !important;
+  }
+
+  header,
+  footer,
+  nav,
+  aside,
+  .no-print,
+  .print-hidden,
+  [aria-label="ब्रेडक्रंब"],
+  .dp-ringan-dot {
+    display: none !important;
+  }
+
+  .vitthalaya-shell {
+    min-height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .vitthalaya-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .vitthalaya-card {
+    border: 1px solid #999 !important;
+    box-shadow: none !important;
+    border-radius: 4px !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  th, td {
+    border: 1px solid #666 !important;
+    padding: 4px 6px !important;
+    font-size: 9pt !important;
+  }
+
+  th {
+    background-color: #f0f0f0 !important;
+    font-weight: bold !important;
+  }
+
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  a[href^="tel:"]::after {
+    content: "" !important;
+  }
+}
+

@@ -95,7 +95,7 @@ export function SaintCardVisual({
 
       {/* Top Bar: Tradition & Region */}
       <div className="relative z-10 flex items-center justify-between text-[10px] font-marathi text-[var(--dp-gold)]">
-        <span className="tracking-wide">{seal.tradition}</span>
+        <span>{seal.tradition}</span>
         {region && <span className="opacity-80">{region}</span>}
       </div>
 
@@ -113,7 +113,7 @@ export function SaintCardVisual({
 
       {/* Bottom Bar: Signature Abhang Mudra */}
       <div className="relative z-10 flex items-center justify-between text-[11px] font-marathi pt-1 border-t border-[var(--dp-rule)]">
-        <span className="font-semibold text-[var(--dp-gold)] tracking-wide">
+        <span className="font-semibold text-[var(--dp-gold)]">
           « {seal.mudra} »
         </span>
         <span className="text-[var(--dp-ink-dim)] text-[10px]">

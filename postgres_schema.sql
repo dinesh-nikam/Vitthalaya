@@ -152,7 +152,7 @@ INSERT INTO festivals (name_marathi, name_transliteration, date_rule, month_day_
 -- Insert core categories
 INSERT INTO categories (name_marathi, name_transliteration, slug, description) VALUES
 ('विठ्ठल', 'Vitthal', 'vitthal', 'विठ्ठल वर्षा आणि वारकरी सम्बन्धी साहित्य'),
-('अभंग', 'Abhang', 'abhang', 'तुकाराम, द्न्यादेश्वर यांचे अभंग'),
+('अभंग', 'Abhang', 'abhang', 'तुकाराम, ज्ञानेश्वर यांचे अभंग'),
 ('हरिपाठ', 'Haripath', 'haripath', 'नामदेव महाराजांचे हरिपाठ'),
 ('आरती', 'Aarti', 'aarti', 'देवी, देवतांच्या आरती'),
 ('स्तोत्र', 'Stotra', 'stotra', 'प्रार्थना आणि स्तोत्रगाथा'),

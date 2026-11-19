@@ -123,7 +123,7 @@ export default async function ArthPage({ params }: Props) {
           <h1 className="vitthalaya-display text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
             {composition.titleMarathi}
           </h1>
-          <p className="text-sm font-marathi text-[var(--dp-muted)] tracking-wide">
+          <p className="text-sm font-marathi text-[var(--dp-muted)]">
             {composition.titleTranslit} — तात्त्विक व अध्यात्मिक अर्थ
           </p>
         </header>
@@ -182,7 +182,7 @@ export default async function ArthPage({ params }: Props) {
             {/* Keywords */}
             {keywords.length > 0 && (
               <div className="pt-2">
-                <h3 className="text-xs font-marathi text-[var(--dp-muted)] mb-2 uppercase tracking-wider">
+                <h3 className="text-xs font-marathi text-[var(--dp-muted)] mb-2 font-medium">
                   संबंधित विषय व शब्दसंग्रह:
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -204,7 +204,7 @@ export default async function ArthPage({ params }: Props) {
             {/* Saint Card */}
             {composition.saint && (
               <div className="vitthalaya-card rounded-2xl p-6 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)]">
-                <h3 className="text-xs uppercase tracking-wider text-[var(--dp-muted)] font-marathi mb-2">
+                <h3 className="text-xs font-medium text-[var(--dp-muted)] font-marathi mb-2">
                   रचनाकार संत
                 </h3>
                 <p className="text-lg font-bold text-[var(--dp-gold)] font-marathi mb-1">
@@ -224,7 +224,7 @@ export default async function ArthPage({ params }: Props) {
 
             {/* Actions Card */}
             <div className="vitthalaya-card rounded-2xl p-6 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] space-y-3">
-              <h3 className="text-xs uppercase tracking-wider text-[var(--dp-muted)] font-marathi mb-1">
+              <h3 className="text-xs font-medium text-[var(--dp-muted)] font-marathi mb-1">
                 वाचन पर्याय
               </h3>
               <Link

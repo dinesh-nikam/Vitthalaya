@@ -17,7 +17,7 @@ import { contentHash } from '../src/canonical/normalization';
 
 const SAINTS = [
   { name: 'तुकाराम महाराज', translit: 'Tukaram Maharaj', slug: 'tukaram-maharaj' },
-  { name: 'द्न्यादेश्वर महाराज', translit: 'Dnyaneshwar Maharaj', slug: 'dnyaneshwar-maharaj' },
+  { name: 'ज्ञानेश्वर महाराज', translit: 'Dnyaneshwar Maharaj', slug: 'dnyaneshwar-maharaj' },
   { name: 'नामदेव महाराज', translit: 'Namdev Maharaj', slug: 'namdev-maharaj' },
   { name: 'एकनाथ महाराज', translit: 'Eknath Maharaj', slug: 'eknath-maharaj' }
 ];

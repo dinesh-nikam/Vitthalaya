@@ -120,7 +120,7 @@ describe('Scraper - Quality Checks', () => {
 
   test('TC-SCRAPER-014: Saint mapping verified', () => {
     const saintName = 'तुकाराम';
-    const isValidSaint = (name: string) => ['तुकाराम', 'द्न्यादेश्वर', 'नामदेव'].includes(name);
+    const isValidSaint = (name: string) => ['तुकाराम', 'ज्ञानेश्वर', 'नामदेव'].includes(name);
     expect(isValidSaint(saintName)).toBe(true);
   });
 

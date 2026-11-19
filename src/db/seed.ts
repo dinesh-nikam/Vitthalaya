@@ -27,23 +27,23 @@ async function main() {
         nameMarathi: 'तुकाराम महाराज',
         nameTranslit: 'Tukaram Maharaj',
         slug: 'tukaram-maharaj',
-        period: '१७थे शतक',
+        period: '१७वे शतक',
         region: 'देहू',
-        biography: 'तुकाराम महाराज हे वारकरी संत या संघाटीचे मुख्य संत होंडले. त्यांचे अभंग विठ्ठल वर्षा आणि भक्ती भावनेत रचलेले आहेत. तुकाराम महाराज यांच्या काव्यांमध्ये साधारण माणूसांची भावना व स्पष्ट सार्वत्रिक संदेशांचे संगम आहे. त्यांच्या अभंगांत विठ्ठलाची भक्ती हे जगप्रसिद्ध झाले आहे.',
+        biography: 'जगद्गुरू संत तुकाराम महाराज हे वारकरी संप्रदायातील शिरोमणी संत आहेत. त्यांचे अभंग विठ्ठलभक्ती, आत्मशोध आणि समाजप्रबोधनाने ओतप्रोत भरलेले आहेत. तुकाराम गाथा ही वारकरी भक्ती साहित्याचा अनमोल ठेवा आहे.',
       },
     }),
 
-    // Dnyaneshwar Maharaj - Composer of Haripath
+    // Dnyaneshwar Maharaj - Composer of Haripath & Dnyaneshwari
     prisma.saint.upsert({
       where: { slug: 'dnyaneshwar-maharaj' },
       update: {},
       create: {
-        nameMarathi: 'द्न्यादेश्वर महाराज',
+        nameMarathi: 'ज्ञानेश्वर महाराज',
         nameTranslit: 'Dnyaneshwar Maharaj',
         slug: 'dnyaneshwar-maharaj',
-        period: '१३थे शतक',
-        region: 'अलंदी',
-        biography: 'द्न्यादेश्वर महाराज हे वारकरी संत या संघाटीचे संत होंडले. त्यांना हरिपाठ लिहिले आहे, जे मराठी भक्ती साहित्यातील अविभाज्य अंश आहे. त्यांनी नामदेव महाराज यांच्या भक्तीतून मार्गदर्शन केले.',
+        period: '१३वे शतक',
+        region: 'आळंदी',
+        biography: 'संत ज्ञानेश्वर महाराज (ज्ञानोबा माउली) हे वारकरी संप्रदायाचे आधारस्तंभ आहेत. त्यांनी भावार्थदीपिका (ज्ञानेश्वरी), अमृतानुभव आणि हरिपाठाची रचना करून भागवत धर्माचा पाया घातला.',
       },
     }),
 
@@ -55,9 +55,9 @@ async function main() {
         nameMarathi: 'नामदेव महाराज',
         nameTranslit: 'Namdev Maharaj',
         slug: 'namdev-maharaj',
-        period: '१३-१४ शतक',
-        region: 'अहमदनगर',
-        biography: 'नामदेव महाराज हे वारकरी संत या संघाटीचे संत आणि त्यांच्या हरिपाठ हे भक्ती काव्याचा उत्कृष्ट स्तराचे उदाहरण आहे. त्यांनी नामस्मरणाचे महत्त्व सांगितले आहे.',
+        period: '१३-१४वे शतक',
+        region: 'नरसी नामदेव, हिंगोली',
+        biography: 'संत नामदेव महाराज हे वारकरी संप्रदायातील आद्य प्रचारक आणि कीर्तनाचे जनक मानले जातात. त्यांनी संपूर्ण भारतात भागवत धर्माची पताका फडकवली. त्यांचे अभंग शीख धर्मग्रंथ गुरुग्रंथ साहिबमध्येही समाविष्ट आहेत.',
       },
     }),
 
@@ -69,9 +69,9 @@ async function main() {
         nameMarathi: 'एकनाथ महाराज',
         nameTranslit: 'Eknath Maharaj',
         slug: 'eknath-maharaj',
-        period: '१६थे शतक',
-        region: 'पुणे',
-        biography: 'एकनाथ महाराज हे वारकरी संत या संघाटीचे संत. त्यांचे स्तोत्र आणि अभंग विशेष महत्वाचे आहेत. त्यांनी वैदिक ग्रंथांचे मराठी अनुवाद केले.',
+        period: '१६वे शतक',
+        region: 'पैठण',
+        biography: 'संत एकनाथ महाराज हे पैठणचे थोर संत असून त्यांनी एकनाथी भागवत, भावार्थ रामायण, रुक्मिणी स्वयंवर आणि भारुडांची रचना केली. त्यांनी ज्ञानेश्वरीच्या मूळ प्रतीचे संपादन व शुद्धीकरण केले.',
       },
     }),
   ]);
@@ -135,7 +135,7 @@ async function main() {
         nameMarathi: 'अभंग',
         nameTranslit: 'Abhang',
         slug: 'abhang',
-        description: 'तुकाराम, द्न्यादेश्वर यांचे अभंग',
+        description: 'तुकाराम, ज्ञानेश्वर यांचे अभंग',
         parentId: (await prisma.category.findUnique({ where: { slug: 'vitthal' } }))?.id,
       },
     }),
@@ -188,88 +188,75 @@ async function main() {
   // Documented Ashadhi Wari route stops (real places, real route distances).
   const wariStops = await Promise.all([
     prisma.wariStop.upsert({
-      where: { slug: 'dehu' },
-      update: {},
+      where: { slug: 'alandi-dehu' },
+      update: { distanceKm: 0, sortOrder: 1 },
       create: {
-        nameMarathi: 'देहू',
-        nameTranslit: 'Dehu',
-        slug: 'dehu',
-        distanceKm: 250,
-        description: 'संत तुकाराम महाराजांच्या पालखीचे प्रस्थान',
-        icon: '🚩',
-        sortOrder: 0,
-      },
-    }),
-    prisma.wariStop.upsert({
-      where: { slug: 'alandi' },
-      update: {},
-      create: {
-        nameMarathi: 'आळंदी',
-        nameTranslit: 'Alandi',
-        slug: 'alandi',
-        distanceKm: 238,
-        description: 'संत ज्ञानेश्वर माऊलींच्या पालखीचे प्रस्थान',
+        nameMarathi: 'आळंदी / देहू',
+        nameTranslit: 'Alandi / Dehu',
+        slug: 'alandi-dehu',
+        distanceKm: 0,
+        description: 'पालखीचे प्रस्थान स्थान — श्री संत ज्ञानेश्वर महाराज (आळंदी) व श्री संत तुकाराम महाराज (देहू)',
         icon: '🚩',
         sortOrder: 1,
       },
     }),
     prisma.wariStop.upsert({
       where: { slug: 'pune' },
-      update: {},
+      update: { distanceKm: 25, sortOrder: 2 },
       create: {
         nameMarathi: 'पुणे',
         nameTranslit: 'Pune',
         slug: 'pune',
-        distanceKm: 215,
-        description: 'दोन्ही पालख्यांचा संगम आणि भव्य स्वागत सोहळा',
+        distanceKm: 25,
+        description: 'दोन्ही पालख्यांचा संगम आणि भव्य स्वागत सोहळा; भवानी पेठ व नाना पेठ मुक्काम',
         icon: '🏛️',
         sortOrder: 2,
       },
     }),
     prisma.wariStop.upsert({
       where: { slug: 'jejuri' },
-      update: {},
+      update: { distanceKm: 72, sortOrder: 4 },
       create: {
         nameMarathi: 'जेजुरी',
         nameTranslit: 'Jejuri',
         slug: 'jejuri',
-        distanceKm: 165,
-        description: 'खंडोबा चरणी भंडारा उधळण',
+        distanceKm: 72,
+        description: 'खंडोबा चरणी भंडारा उधळण व पालखी स्वागत',
         icon: '⛰️',
-        sortOrder: 3,
-      },
-    }),
-    prisma.wariStop.upsert({
-      where: { slug: 'wakhari' },
-      update: {},
-      create: {
-        nameMarathi: 'वाखरी',
-        nameTranslit: 'Wakhari',
-        slug: 'wakhari',
-        distanceKm: 15,
-        description: 'वारीतील शेवटचे भव्य गोलाकार रिंगण',
-        icon: '🌀',
         sortOrder: 4,
       },
     }),
     prisma.wariStop.upsert({
-      where: { slug: 'pandharpur' },
-      update: {},
+      where: { slug: 'wakhari' },
+      update: { distanceKm: 245, sortOrder: 14 },
       create: {
-        nameMarathi: 'पंढरपूर',
+        nameMarathi: 'वाखरी',
+        nameTranslit: 'Wakhari',
+        slug: 'wakhari',
+        distanceKm: 245,
+        description: 'वारीतील शेवटचे भव्य गोलाकार रिंगण व मुक्काम',
+        icon: '🌀',
+        sortOrder: 14,
+      },
+    }),
+    prisma.wariStop.upsert({
+      where: { slug: 'pandharpur' },
+      update: { distanceKm: 255, sortOrder: 15 },
+      create: {
+        nameMarathi: 'पंढरपूर (चंद्रभागा / मंदिर)',
         nameTranslit: 'Pandharpur',
         slug: 'pandharpur',
-        distanceKm: 0,
-        description: 'चंद्रभागेचे स्नान आणि विठू माऊलींचे दर्शन',
+        distanceKm: 255,
+        description: 'चंद्रभागेचे पवित्र स्नान आणि श्री विठ्ठल-रुक्मिणी दर्शन',
         icon: '🛕',
-        sortOrder: 5,
+        sortOrder: 15,
       },
     }),
   ]);
 
   // Get IDs for relationships
   const tukaramId = saints.find((s) => s.nameMarathi === 'तुकाराम महाराज')?.id;
-  const dnyaneshwarId = saints.find((s) => s.nameMarathi === 'द्न्यादेश्वर महाराज')?.id;
+  const dnyaneshwarId = saints.find((s) => s.nameMarathi === 'ज्ञानेश्वर महाराज')?.id;
   const namdevId = saints.find((s) => s.nameMarathi === 'नामदेव महाराज')?.id;
   const eknathId = saints.find((s) => s.nameMarathi === 'एकनाथ महाराज')?.id;
   const vitthalId = deities.find((d) => d.nameMarathi === 'विठ्ठल')?.id;
@@ -350,7 +337,7 @@ async function main() {
         meaning: `हे हरिपाठ राम, कृष्ण आणि हरीं यांच्या नामाचे स्मरण करण्याबाबत शिक्षण करते. भक्तांना श्रीहरींचे नाम स्मरण करण्याची प्रेरणा देते. नामस्मरणे हे आत्मज्ञानाचे मार्ग होय.`,
         saintId: dnyaneshwarId,
         deityId: vitthalId,
-        source: 'हरिपाठ ग्रंथ - द्न्यादेश्वर महाराज (१३थे शतक, पब्लिक डोमेन)',
+        source: 'हरिपाठ ग्रंथ - ज्ञानेश्वर महाराज (१३वे शतक, पब्लिक डोमेन)',
         reviewed: true,
       },
     }),

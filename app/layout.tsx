@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t('siteName') + ' - ' + t('siteTagline'),
     description: t('siteDescription'),
-    keywords: 'अभंग, भजन, हरिपाठ, आरती, स्तोत्र, विठ्ठल, वारकरी, तुकाराम, द्न्यादेश्वर',
+    keywords: 'अभंग, भजन, हरिपाठ, आरती, स्तोत्र, विठ्ठल, वारकरी, तुकाराम, ज्ञानेश्वर',
     robots: {
       index: true,
       follow: true,
@@ -50,6 +50,12 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Rozha+One&family=Tiro+Devanagari+Marathi:ital@0;1&family=Yatra+One&display=swap"
+        />
         <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="theme-color" content="#FF7A1A" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

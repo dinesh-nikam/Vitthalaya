@@ -12,15 +12,26 @@ import {
   Disc,
   Play,
   Camera,
+  Sparkles,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { SaintCardVisual } from '@/components/saint-card-visual';
 import { DevotionalPrahar } from '@/components/devotional-prahar';
-import { SanctumExperience } from '@/components/3d/sanctum-experience';
-import { Vitthalaya3DSanctuary } from '@/components/3d/vitthalaya-3d-sanctuary';
+const SanctumExperience = dynamic(
+  () => import('@/components/3d/sanctum-experience').then((mod) => mod.SanctumExperience),
+  { ssr: false }
+);
+const Vitthalaya3DSanctuary = dynamic(
+  () => import('@/components/3d/vitthalaya-3d-sanctuary').then((mod) => mod.Vitthalaya3DSanctuary),
+  { ssr: false }
+);
 import { WariInteractiveRoute } from '@/components/wari-interactive-route';
 import { SanctumGateway } from '@/components/cinematic/sanctum-gateway';
 import { SoundController } from '@/components/cinematic/sound-controller';
-import { ParticleCanvas } from '@/components/cinematic/particle-canvas';
+const ParticleCanvas = dynamic(
+  () => import('@/components/cinematic/particle-canvas').then((mod) => mod.ParticleCanvas),
+  { ssr: false }
+);
 import { AnimatedSacredGallery } from '@/components/cinematic/animated-sacred-gallery';
 import { HeroSacredShowcase } from '@/components/cinematic/hero-sacred-showcase';
 import { WariAnimatedShowcase } from '@/components/cinematic/wari-animated-showcase';
@@ -97,6 +108,36 @@ export function VitthalayaPilgrimage({
   recentAudios = [],
 }: VitthalayaPilgrimageProps) {
   const [query, setQuery] = React.useState('');
+
+  // Lite mode / Low-Data detection state (Addition A-01)
+  const [isLiteMode, setIsLiteMode] = React.useState<boolean>(false);
+  const [isClientMounted, setIsClientMounted] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    setIsClientMounted(true);
+    try {
+      const stored = localStorage.getItem('dp_lite_mode_enabled');
+      if (stored !== null) {
+        setIsLiteMode(stored === 'true');
+        return;
+      }
+      const nav = navigator as any;
+      const isLowMemory = typeof nav.deviceMemory === 'number' && nav.deviceMemory < 4;
+      const isSaveData = nav.connection?.saveData === true;
+      const isLowConcurrency = typeof nav.hardwareConcurrency === 'number' && nav.hardwareConcurrency <= 4;
+      if (isLowMemory || isSaveData || isLowConcurrency) {
+        setIsLiteMode(true);
+      }
+    } catch {}
+  }, []);
+
+  const toggleLiteMode = () => {
+    const next = !isLiteMode;
+    setIsLiteMode(next);
+    try {
+      localStorage.setItem('dp_lite_mode_enabled', String(next));
+    } catch {}
+  };
 
   // ── Cinematic gateway + sound state ──────────────────────
   const [showGateway, setShowGateway] = React.useState(() => {
@@ -186,10 +227,12 @@ export function VitthalayaPilgrimage({
         aria-labelledby="hero-title"
       >
         {/* Ambient gold-dust particle field */}
-        <ParticleCanvas
-          count={30}
-          className="absolute inset-0 pointer-events-none"
-        />
+        {!isLiteMode && isClientMounted && (
+          <ParticleCanvas
+            count={30}
+            className="absolute inset-0 pointer-events-none"
+          />
+        )}
 
         {/* Radial gold halo behind the title */}
         <div
@@ -202,7 +245,7 @@ export function VitthalayaPilgrimage({
         />
 
         <div className="vitthalaya-container text-center relative z-10">
-          <p className="text-xs font-marathi text-[var(--dp-gold-celestial)] mb-4 tracking-wide">
+          <p className="text-xs font-marathi text-[var(--dp-gold-celestial)] mb-4">
             ज्ञानोबा तुकाराम · डिजिटल पंढरपूर
           </p>
 
@@ -315,7 +358,40 @@ export function VitthalayaPilgrimage({
       {/* ── 2. Interactive 3D Sanctum Experience ── */}
       <section className="vitthalaya-section vitthalaya-section-well" aria-labelledby="sanctum-heading">
         <div className="vitthalaya-container">
-          <SanctumExperience />
+          {isLiteMode ? (
+            <div className="vitthalaya-card rounded-2xl p-6 sm:p-10 text-center relative overflow-hidden border border-[var(--dp-rule)] bg-[var(--dp-ground-well)]">
+              <div className="max-w-xl mx-auto space-y-4">
+                <span className="inline-block px-3 py-1 bg-[var(--dp-ground)] text-[var(--dp-gold)] text-xs font-marathi rounded-full border border-[var(--dp-rule)]">
+                  श्री विठ्ठल दर्शन (हलकी आवृत्ती)
+                </span>
+                <h3 className="vitthalaya-display text-2xl sm:text-3xl font-bold text-[var(--dp-gold)]">
+                  सुंदर ते ध्यान उभे विटेवरी
+                </h3>
+                <p className="text-sm font-marathi text-[var(--dp-muted)] leading-relaxed">
+                  कर कटावरी ठेवोनिया । तुळसी हार गळां कासे पितांबर । आवडे निरंतर हेचि ध्यान ॥
+                </p>
+                <div className="pt-2 flex flex-wrap justify-center gap-3">
+                  <Link
+                    href="/abhang/sundar-te-dhyan-ubhe-vitevari"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--dp-gold)] text-[var(--dp-ground-deep)] font-marathi text-sm font-semibold rounded hover:brightness-110 transition-all"
+                  >
+                    <span>संपूर्ण अभंग वाचा</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={toggleLiteMode}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--dp-ground)] border border-[var(--dp-rule)] text-[var(--dp-ink)] font-marathi text-sm rounded hover:border-[var(--dp-gold)] transition-colors"
+                  >
+                    <Sparkles size={14} className="text-[var(--dp-gold)]" />
+                    <span>३D मूर्ती दर्शन सुरू करा</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <SanctumExperience />
+          )}
         </div>
       </section>
 
@@ -566,7 +642,32 @@ export function VitthalayaPilgrimage({
 
           {/* 3D Sacred Music Sanctuary (All Scraped Regional Compositions) */}
           <div className="mt-8">
+            {isLiteMode ? (
+            <div className="vitthalaya-card rounded-2xl p-6 border border-[var(--dp-rule)] bg-[var(--dp-ground-well)] text-center">
+              <p className="text-sm font-marathi text-[var(--dp-muted)] mb-3">
+                डेटा बचत व वेगवान अनुभवासाठी ३D संगीत मंडप बंद ठेवला आहे.
+              </p>
+              <div className="flex justify-center gap-3">
+                <Link
+                  href="/explore"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--dp-gold)] text-[var(--dp-ground-deep)] font-marathi text-xs font-semibold rounded"
+                >
+                  <span>सर्व रचना सूची पहा</span>
+                  <ArrowRight size={12} />
+                </Link>
+                <button
+                  type="button"
+                  onClick={toggleLiteMode}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--dp-ground)] border border-[var(--dp-rule)] text-[var(--dp-ink)] font-marathi text-xs rounded"
+                >
+                  <Sparkles size={12} className="text-[var(--dp-gold)]" />
+                  <span>३D मंडप उघडा</span>
+                </button>
+              </div>
+            </div>
+          ) : (
             <Vitthalaya3DSanctuary />
+          )}
           </div>
         </div>
       </section>
@@ -800,7 +901,7 @@ export function VitthalayaPilgrimage({
             <div className="absolute inset-0 bg-gradient-to-t from-[var(--dp-ground)] via-[var(--dp-ground)]/85 to-[var(--dp-ground)]/90" />
 
             <div className="relative z-10 space-y-4 max-w-2xl mx-auto">
-              <span className="text-xs text-[var(--dp-gold-celestial)] font-marathi tracking-wider uppercase">
+              <span className="text-xs text-[var(--dp-gold-celestial)] font-marathi font-medium">
                 पवित्र तीर्थक्षेत्र दर्शन
               </span>
               <h2 id="heritage-heading" className="vitthalaya-display font-manthan text-3xl sm:text-4xl font-bold text-[var(--dp-ink)]">
