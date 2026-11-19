@@ -11,7 +11,7 @@ import { existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import type { StorageProvider, StorageConfig } from './provider';
 
-const DEFAULT_BASE_PATH = join(process.cwd(), 'public', 'uploads');
+const DEFAULT_BASE_PATH = join(process.cwd(), 'storage', 'uploads');
 
 export class LocalStorageProvider implements StorageProvider {
   private basePath: string;

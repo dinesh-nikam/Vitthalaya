@@ -15,8 +15,15 @@ export function verifyPassword(password: string, hash: string): boolean {
     // Handle legacy hashes with 1000 iterations
     const iterations = hash.includes(':iterations:') ? parseInt(hash.split(':iterations:')[1], 10) : PBKDF2_ITERATIONS;
     const legacyHash = hash.split(':iterations:')[0].split(':')[1];
+    const targetKey = key || legacyHash;
+    if (!targetKey) return false;
+
     const derivedKey = crypto.pbkdf2Sync(password, salt, iterations, 64, 'sha512');
-    return derivedKey.toString('hex') === (key || legacyHash);
+    const derivedBuf = Buffer.from(derivedKey.toString('hex'), 'utf8');
+    const targetBuf = Buffer.from(targetKey, 'utf8');
+
+    if (derivedBuf.length !== targetBuf.length) return false;
+    return crypto.timingSafeEqual(derivedBuf, targetBuf);
   } catch {
     return false;
   }
@@ -60,28 +67,6 @@ export const authOptions: NextAuthOptions = {
         const user = await db.user.findUnique({
           where: { email: credentials.email },
         });
-
-        // Development-only auto-admin creation
-        if (!user && process.env.NODE_ENV === 'development' && credentials.email === 'admin@warkari.org' && credentials.password === 'admin123') {
-          const passwordHash = hashPassword(credentials.password);
-          const devAdmin = await db.user.create({
-            data: {
-              email: credentials.email,
-              name: 'पंढरी प्रशासक',
-              password: passwordHash,
-              role: 'ADMIN',
-              reputationScore: 1000,
-            },
-          });
-          await clearAuthRateLimit(credentials.email);
-          return {
-            id: devAdmin.id,
-            email: devAdmin.email,
-            name: devAdmin.name,
-            role: devAdmin.role,
-            reputationScore: devAdmin.reputationScore,
-          };
-        }
 
         if (!user || !user.password) {
           // Record failed attempt for non-existent user as well (prevent timing attacks)

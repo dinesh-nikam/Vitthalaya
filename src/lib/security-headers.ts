@@ -12,12 +12,12 @@ const SECURITY_HEADERS: Record<string, string> = {
   // Content Security Policy - restrict script sources
   'Content-Security-Policy': [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net", // unsafe-inline needed for Next.js inline scripts
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://checkout.razorpay.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: https: blob:",
     "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com",
-    // Allow Google Fonts stylesheet + gstatic font files, plus Google APIs used server-side
-    "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://generativelanguage.googleapis.com https://vision.googleapis.com https://www.googleapis.com",
+    "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://generativelanguage.googleapis.com https://vision.googleapis.com https://www.googleapis.com https://api.razorpay.com https://lumberjack.razorpay.com",
+    "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -39,12 +39,12 @@ const SECURITY_HEADERS: Record<string, string> = {
   // Referrer Policy
   'Referrer-Policy': 'strict-origin-when-cross-origin',
 
-  // Permissions Policy - disable unnecessary browser features
+  // Permissions Policy - allow microphone and payment on own origin
   'Permissions-Policy': [
     'camera=()',
-    'microphone=()',
+    'microphone=(self)',
     'geolocation=()',
-    'payment=()',
+    'payment=(self)',
   ].join(', '),
 };
 

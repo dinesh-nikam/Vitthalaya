@@ -14,7 +14,15 @@
  * works identically on either surface.
  */
 
-import { createHmac } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
+
+function safeCompare(aStr: string, bStr: string): boolean {
+  if (typeof aStr !== 'string' || typeof bStr !== 'string') return false;
+  const bufA = Buffer.from(aStr, 'utf8');
+  const bufB = Buffer.from(bStr, 'utf8');
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
 
 export interface OrderAccessSubject {
   id: string;
@@ -55,7 +63,7 @@ export function canAccessOrder(context: OrderAccessContext): boolean {
   }
 
   // 2. Shareable link token (?token=)
-  if (token && order.id && token === computeOrderAccessToken(order.id)) {
+  if (token && order.id && safeCompare(token, computeOrderAccessToken(order.id))) {
     return true;
   }
 

@@ -79,7 +79,7 @@ export function verifyWebhookSignature(
   }
 
   const expectedSignature = createHmacSha256(body, webhookSecret);
-  return expectedSignature === signature;
+  return safeCompare(expectedSignature, signature);
 }
 
 // ── Webhook Event Types ───────────────────────────────────────────────────────
@@ -122,7 +122,15 @@ export function parseWebhookEvent(body: string): RazorpayWebhookEvent {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-import { createHmac } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
+
+function safeCompare(aStr: string, bStr: string): boolean {
+  if (typeof aStr !== 'string' || typeof bStr !== 'string') return false;
+  const bufA = Buffer.from(aStr, 'utf8');
+  const bufB = Buffer.from(bStr, 'utf8');
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
 
 function createHmacSha256(data: string, secret: string): string {
   return createHmac('sha256', secret).update(data).digest('hex');
@@ -147,5 +155,5 @@ export function verifyPayment(
   if (!keySecret) return false;
 
   const expected = createHmacSha256(`${orderId}|${paymentId}`, keySecret);
-  return expected === signature;
+  return safeCompare(expected, signature);
 }

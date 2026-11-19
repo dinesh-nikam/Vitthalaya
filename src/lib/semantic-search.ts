@@ -125,10 +125,19 @@ async function semanticSearch(
   options: { limit: number; type?: string }
 ): Promise<Array<{ id: string; score: number }>> {
   try {
-    // Build the query with optional type filter
-    const typeFilter = options.type 
-      ? `AND c.type = '${options.type}'`
-      : '';
+    // Validate and parameterize optional type filter against allowlist
+    const VALID_TYPES = new Set([
+      'ABHANG', 'BHAJAN', 'AARTI', 'STOTRA', 'HARIPATH', 'OVI', 'POWADA', 'GAULAN', 'OTHER'
+    ]);
+    const normalizedType = options.type ? options.type.toUpperCase().trim() : null;
+    const hasValidType = Boolean(normalizedType && VALID_TYPES.has(normalizedType));
+
+    const queryParams: unknown[] = [JSON.stringify(queryEmbedding), options.limit];
+    let typeClause = '';
+    if (hasValidType) {
+      queryParams.push(normalizedType);
+      typeClause = 'AND c.type = $3';
+    }
 
     const results = await db.$queryRawUnsafe(`
       SELECT 
@@ -137,10 +146,10 @@ async function semanticSearch(
       FROM composition_embeddings ce
       JOIN compositions c ON c.id = ce.composition_id
       WHERE c.reviewed = true
-        ${typeFilter}
+        ${typeClause}
       ORDER BY ce.embedding <=> $1::vector
       LIMIT $2
-    `, JSON.stringify(queryEmbedding), options.limit);
+    `, ...queryParams);
 
     return (results as Array<{ id: string; score: number }>).map(r => ({
       id: r.id,
